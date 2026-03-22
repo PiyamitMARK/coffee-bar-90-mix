@@ -32,6 +32,7 @@ const products = {
     { id: 'coconut', name: 'มะพร้าวปั่น', price: 45, image: IMG(333) },
   ],
   kaosoi: [
+    { id: 'soi4', name: 'ข้าวซอยเนื้อ', price: 85, image: IMG(222) },
     { id: 'soi2', name: 'ข้าวซอยหมู', price: 75, image: IMG(222) },
     { id: 'soi1', name: 'ข้าวซอยไก่', price: 65, image: IMG(111) },
     { id: 'soi3', name: 'น้ำเงี้ยว', price: 55, image: IMG(555) },
