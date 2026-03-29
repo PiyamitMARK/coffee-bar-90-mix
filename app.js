@@ -33,11 +33,14 @@ const products = {
   ],
   kaosoi: [
     { id: 'soi4', name: 'ข้าวซอยเนื้อ', price: 85, image: IMG(2223) },
+    { id: 'soi2', name: 'ข้าวซอยกระดูกหมู', price: 75, image: IMG(111) },
     { id: 'soi1', name: 'ข้าวซอยไก่', price: 65, image: IMG(111) },
     { id: 'soi3', name: 'น้ำเงี้ยว', price: 55, image: IMG(555) },
   ],
   soda: [
     { id: 'pepsi', name: 'เป็ปซี่', price: 15, image: IMG(80) },
+    { id: 'pepsi', name: 'น้ำแดงแฟนต้า', price: 15, image: IMG(543) },
+    { id: 'pepsi', name: 'สไปร์ท', price: 15, image: IMG(345) },
     { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) }, 
     { id: 'red-lime-soda', name: 'แดงมะนาวโซดา', price: 35, image: IMG(23) },
     { id: 'blue-hawaii-soda', name: 'บลูฮาวายมะนาวโซดา', price: 35, image: IMG(26) },
