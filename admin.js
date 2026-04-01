@@ -11,139 +11,7 @@ const ORDERS_STORAGE_KEY = 'tea-coffee-pos-orders';
 const ORDER_NUMBER_KEY = 'tea-coffee-pos-orderNumber';
 
 // ==================== Google Sheet Config ====================
-
-const customDateRange = document.getElementById('customDateRange');
-const dateFrom = document.getElementById('dateFrom');
-const dateTo = document.getElementById('dateTo');
-
-// ตั้งค่าวันปัจจุบันเป็น default
-function initDatePicker() {
-  const today = new Date().toISOString().slice(0, 10);
-  dateFrom.value = today;
-  dateTo.value = today;
-}
-
-// แสดง/ซ่อน date picker
-document.querySelectorAll('input[name="exportRange"]').forEach(radio => {
-  radio.addEventListener('change', () => {
-    customDateRange.classList.toggle('hidden', radio.value !== 'custom');
-  });
-});
-
-function openExportModal() {
-  exportStatus.textContent = '';
-  exportStatus.className = 'export-status';
-  exportConfirm.disabled = false;
-  exportConfirm.textContent = '📤 ส่งข้อมูล';
-  // reset กลับ today
-  document.querySelector('input[name="exportRange"][value="today"]').checked = true;
-  customDateRange.classList.add('hidden');
-  initDatePicker();
-  exportModal.setAttribute('aria-hidden', 'false');
-}
-
-function closeExportModal() {
-  exportModal.setAttribute('aria-hidden', 'true');
-  exportStatus.textContent = '';
-}
-
-function isInDateRange(isoString, from, to) {
-  const key = getDateKey(isoString);
-  return key >= from && key <= to;
-}
-
-function getFilteredOrders(range) {
-  const orders = loadOrders();
-  if (range === 'today') {
-    return orders.filter(o => isToday(o.date));
-  }
-  if (range === 'month') {
-    return orders.filter(o => isWithinLast30Days(o.date));
-  }
-  if (range === 'custom') {
-    const from = dateFrom.value;
-    const to = dateTo.value;
-    if (!from || !to) return [];
-    return orders.filter(o => isInDateRange(o.date, from, to));
-  }
-  return orders;
-}
-
-function buildSummary(orders) {
-  const byDay = {};
-  orders.filter(o => o.status === 'paid').forEach(o => {
-    const key = getDateKey(o.date);
-    if (!byDay[key]) byDay[key] = { date: key, orderCount: 0, total: 0 };
-    byDay[key].orderCount++;
-    byDay[key].total += o.total;
-  });
-  return Object.values(byDay).sort((a, b) => a.date.localeCompare(b.date));
-}
-
-exportSheetBtn.addEventListener('click', openExportModal);
-exportCancel.addEventListener('click', closeExportModal);
-exportModal.addEventListener('click', (e) => {
-  if (e.target === exportModal) closeExportModal();
-});
-
-exportConfirm.addEventListener('click', async () => {
-  const range = document.querySelector('input[name="exportRange"]:checked').value;
-
-  // validate custom date
-  if (range === 'custom') {
-    if (!dateFrom.value || !dateTo.value) {
-      exportStatus.textContent = '⚠️ กรุณาเลือกวันที่ให้ครบ';
-      exportStatus.className = 'export-status error';
-      return;
-    }
-    if (dateFrom.value > dateTo.value) {
-      exportStatus.textContent = '⚠️ วันที่เริ่มต้องไม่เกินวันที่สิ้นสุด';
-      exportStatus.className = 'export-status error';
-      return;
-    }
-  }
-
-  const orders = getFilteredOrders(range);
-
-  if (orders.length === 0) {
-    exportStatus.textContent = '⚠️ ไม่มีข้อมูลในช่วงที่เลือก';
-    exportStatus.className = 'export-status error';
-    return;
-  }
-
-  const payload = {
-    orders: orders,
-    summary: buildSummary(orders)
-  };
-
-  exportConfirm.disabled = true;
-  exportConfirm.textContent = 'กำลังส่ง...';
-  exportStatus.textContent = '';
-  exportStatus.className = 'export-status';
-
-  try {
-    const res = await fetch(GOOGLE_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
-    const result = await res.json();
-    if (result.success) {
-      exportStatus.textContent = `✅ ส่งสำเร็จ! ${result.inserted} ออเดอร์ (ข้ามซ้ำ ${result.skipped} รายการ)`;
-      exportStatus.className = 'export-status success';
-      exportConfirm.textContent = '✅ สำเร็จ';
-    } else {
-      throw new Error(result.error || 'Unknown error');
-    }
-  } catch (err) {
-    exportStatus.textContent = '❌ เกิดข้อผิดพลาด: ' + err.message;
-    exportStatus.className = 'export-status error';
-    exportConfirm.disabled = false;
-    exportConfirm.textContent = '📤 ส่งข้อมูล';
-  }
-});
-
-// =============================================================
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyW9YA2WglWbRuSaExrjw5T4SsS6nl6Ij4BH_a-rjrRqrUAxXYc6mZA6E45hJLlrOi96A/exec';
 // =============================================================
 
 const loginScreen = document.getElementById('loginScreen');
@@ -497,11 +365,33 @@ clearDataModal.addEventListener('click', (e) => {
 
 // ==================== Google Sheet Export ====================
 
+const customDateRange = document.getElementById('customDateRange');
+const dateFrom = document.getElementById('dateFrom');
+const dateTo = document.getElementById('dateTo');
+
+// ตั้งค่าวันปัจจุบันเป็น default
+function initDatePicker() {
+  const today = new Date().toISOString().slice(0, 10);
+  dateFrom.value = today;
+  dateTo.value = today;
+}
+
+// แสดง/ซ่อน date picker
+document.querySelectorAll('input[name="exportRange"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    customDateRange.classList.toggle('hidden', radio.value !== 'custom');
+  });
+});
+
 function openExportModal() {
   exportStatus.textContent = '';
   exportStatus.className = 'export-status';
   exportConfirm.disabled = false;
   exportConfirm.textContent = '📤 ส่งข้อมูล';
+  // reset กลับ today
+  document.querySelector('input[name="exportRange"][value="today"]').checked = true;
+  customDateRange.classList.add('hidden');
+  initDatePicker();
   exportModal.setAttribute('aria-hidden', 'false');
 }
 
@@ -510,11 +400,26 @@ function closeExportModal() {
   exportStatus.textContent = '';
 }
 
+function isInDateRange(isoString, from, to) {
+  const key = getDateKey(isoString);
+  return key >= from && key <= to;
+}
+
 function getFilteredOrders(range) {
   const orders = loadOrders();
-  if (range === 'today') return orders.filter(o => isToday(o.date));
-  if (range === 'month') return orders.filter(o => isWithinLast30Days(o.date));
-  return orders; // all
+  if (range === 'today') {
+    return orders.filter(o => isToday(o.date));
+  }
+  if (range === 'month') {
+    return orders.filter(o => isWithinLast30Days(o.date));
+  }
+  if (range === 'custom') {
+    const from = dateFrom.value;
+    const to = dateTo.value;
+    if (!from || !to) return [];
+    return orders.filter(o => isInDateRange(o.date, from, to));
+  }
+  return orders;
 }
 
 function buildSummary(orders) {
@@ -536,6 +441,21 @@ exportModal.addEventListener('click', (e) => {
 
 exportConfirm.addEventListener('click', async () => {
   const range = document.querySelector('input[name="exportRange"]:checked').value;
+
+  // validate custom date
+  if (range === 'custom') {
+    if (!dateFrom.value || !dateTo.value) {
+      exportStatus.textContent = '⚠️ กรุณาเลือกวันที่ให้ครบ';
+      exportStatus.className = 'export-status error';
+      return;
+    }
+    if (dateFrom.value > dateTo.value) {
+      exportStatus.textContent = '⚠️ วันที่เริ่มต้องไม่เกินวันที่สิ้นสุด';
+      exportStatus.className = 'export-status error';
+      return;
+    }
+  }
+
   const orders = getFilteredOrders(range);
 
   if (orders.length === 0) {
@@ -562,7 +482,7 @@ exportConfirm.addEventListener('click', async () => {
     });
     const result = await res.json();
     if (result.success) {
-      exportStatus.textContent = `✅ ส่งสำเร็จ! ${orders.length} ออเดอร์`;
+      exportStatus.textContent = `✅ ส่งสำเร็จ! ${result.inserted} ออเดอร์ (ข้ามซ้ำ ${result.skipped} รายการ)`;
       exportStatus.className = 'export-status success';
       exportConfirm.textContent = '✅ สำเร็จ';
     } else {
@@ -577,5 +497,4 @@ exportConfirm.addEventListener('click', async () => {
 });
 
 // =============================================================
-
 checkAuth();
