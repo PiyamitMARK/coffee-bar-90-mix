@@ -44,6 +44,31 @@
 
       <!-- ✅ Export Modal -->
       <div class="modal" id="exportModal" aria-hidden="true">
+  <div class="modal-box">
+    <h3 class="modal-title">📊 Export to Google Sheet</h3>
+    <p class="modal-desc">เลือกช่วงข้อมูลที่ต้องการส่งไป Google Sheet</p>
+    <div class="export-options">
+      <label class="export-option">
+        <input type="radio" name="exportRange" value="today" checked>
+        <span>วันนี้เท่านั้น</span>
+      </label>
+      <label class="export-option">
+        <input type="radio" name="exportRange" value="month">
+        <span>ย้อนหลัง 30 วัน</span>
+      </label>
+      <label class="export-option">
+        <input type="radio" name="exportRange" value="all">
+        <span>ทั้งหมด</span>
+      </label>
+    </div>
+    <p id="exportStatus" class="export-status" aria-live="polite"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" id="exportCancel">ยกเลิก</button>
+      <button type="button" class="btn btn-primary" id="exportConfirm">📤 ส่งข้อมูล</button>
+    </div>
+  </div>
+</div>
+      <div class="modal" id="exportModal" aria-hidden="true">
         <div class="modal-box">
           <h3 class="modal-title">📊 Export to Google Sheet</h3>
           <p class="modal-desc">เลือกช่วงข้อมูลที่ต้องการส่งไป Google Sheet</p>
