@@ -372,6 +372,55 @@ clearDataModal.addEventListener('click', (e) => {
   if (e.target === clearDataModal) closeClearDataModal();
 });
 
+// ==================== Google Sheet Export ====================
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxudTwIvEDjD_ZduaATlcZl023x-NbPuKVI0cK1KCpaEfsPJO09l_okl0plyqLseiaMaQ/exec'; // ← วาง URL ตรงนี้
+
+async function exportToGoogleSheet() {
+  const orders = loadOrders();
+  
+  if (orders.length === 0) {
+    alert('ไม่มีข้อมูลให้ส่ง');
+    return;
+  }
+
+  // สรุปรายวัน
+  const byDay = {};
+  orders.filter(o => o.status === 'paid').forEach(o => {
+    const key = getDateKey(o.date);
+    if (!byDay[key]) byDay[key] = { date: key, orderCount: 0, total: 0 };
+    byDay[key].orderCount++;
+    byDay[key].total += o.total;
+  });
+
+  const payload = {
+    orders: orders,
+    summary: Object.values(byDay)
+  };
+
+  const exportBtn = document.getElementById('exportSheetBtn');
+  exportBtn.disabled = true;
+  exportBtn.textContent = 'กำลังส่ง...';
+
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (result.success) {
+      alert(`✅ ส่งข้อมูลไป Google Sheet สำเร็จ!\nออเดอร์ทั้งหมด ${orders.length} รายการ`);
+    } else {
+      alert('❌ เกิดข้อผิดพลาด: ' + result.error);
+    }
+  } catch (err) {
+    alert('❌ ไม่สามารถเชื่อมต่อได้: ' + err.message);
+  } finally {
+    exportBtn.disabled = false;
+    exportBtn.textContent = '📊 Export to Google Sheet';
+  }
+}
+
 checkAuth();
 
 
