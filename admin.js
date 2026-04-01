@@ -14,6 +14,7 @@ const ORDER_NUMBER_KEY = 'tea-coffee-pos-orderNumber';
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyW9YA2WglWbRuSaExrjw5T4SsS6nl6Ij4BH_a-rjrRqrUAxXYc6mZA6E45hJLlrOi96A/exec';
 // =============================================================
 
+// ==================== DOM Elements ====================
 const loginScreen = document.getElementById('loginScreen');
 const dashboardScreen = document.getElementById('dashboardScreen');
 const loginForm = document.getElementById('loginForm');
@@ -43,6 +44,11 @@ const exportModal = document.getElementById('exportModal');
 const exportCancel = document.getElementById('exportCancel');
 const exportConfirm = document.getElementById('exportConfirm');
 const exportStatus = document.getElementById('exportStatus');
+const customDateRange = document.getElementById('customDateRange');
+const dateFrom = document.getElementById('dateFrom');
+const dateTo = document.getElementById('dateTo');
+
+// ======================================================
 
 function isLoggedIn() {
   return sessionStorage.getItem(AUTH_KEY) === 'true';
@@ -86,7 +92,7 @@ function formatDateOnly(isoString) {
 
 function getDateKey(isoString) {
   const d = new Date(isoString);
-  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+  return d.toISOString().slice(0, 10);
 }
 
 function isToday(isoString) {
@@ -365,18 +371,12 @@ clearDataModal.addEventListener('click', (e) => {
 
 // ==================== Google Sheet Export ====================
 
-const customDateRange = document.getElementById('customDateRange');
-const dateFrom = document.getElementById('dateFrom');
-const dateTo = document.getElementById('dateTo');
-
-// ตั้งค่าวันปัจจุบันเป็น default
 function initDatePicker() {
   const today = new Date().toISOString().slice(0, 10);
   dateFrom.value = today;
   dateTo.value = today;
 }
 
-// แสดง/ซ่อน date picker
 document.querySelectorAll('input[name="exportRange"]').forEach(radio => {
   radio.addEventListener('change', () => {
     customDateRange.classList.toggle('hidden', radio.value !== 'custom');
@@ -388,7 +388,6 @@ function openExportModal() {
   exportStatus.className = 'export-status';
   exportConfirm.disabled = false;
   exportConfirm.textContent = '📤 ส่งข้อมูล';
-  // reset กลับ today
   document.querySelector('input[name="exportRange"][value="today"]').checked = true;
   customDateRange.classList.add('hidden');
   initDatePicker();
@@ -407,12 +406,8 @@ function isInDateRange(isoString, from, to) {
 
 function getFilteredOrders(range) {
   const orders = loadOrders();
-  if (range === 'today') {
-    return orders.filter(o => isToday(o.date));
-  }
-  if (range === 'month') {
-    return orders.filter(o => isWithinLast30Days(o.date));
-  }
+  if (range === 'today') return orders.filter(o => isToday(o.date));
+  if (range === 'month') return orders.filter(o => isWithinLast30Days(o.date));
   if (range === 'custom') {
     const from = dateFrom.value;
     const to = dateTo.value;
@@ -442,7 +437,6 @@ exportModal.addEventListener('click', (e) => {
 exportConfirm.addEventListener('click', async () => {
   const range = document.querySelector('input[name="exportRange"]:checked').value;
 
-  // validate custom date
   if (range === 'custom') {
     if (!dateFrom.value || !dateTo.value) {
       exportStatus.textContent = '⚠️ กรุณาเลือกวันที่ให้ครบ';
