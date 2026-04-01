@@ -10,6 +10,10 @@ const AUTH_KEY = 'tea-coffee-admin-auth';
 const ORDERS_STORAGE_KEY = 'tea-coffee-pos-orders';
 const ORDER_NUMBER_KEY = 'tea-coffee-pos-orderNumber';
 
+// ==================== Google Sheet Config ====================
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxudTwIvEDjD_ZduaATlcZl023x-NbPuKVI0cK1KCpaEfsPJO09l_okl0plyqLseiaMaQ/exec';
+// =============================================================
+
 const loginScreen = document.getElementById('loginScreen');
 const dashboardScreen = document.getElementById('dashboardScreen');
 const loginForm = document.getElementById('loginForm');
@@ -32,6 +36,13 @@ const clearDataCode = document.getElementById('clearDataCode');
 const clearDataError = document.getElementById('clearDataError');
 const clearDataCancel = document.getElementById('clearDataCancel');
 const clearDataConfirm = document.getElementById('clearDataConfirm');
+
+// Export elements
+const exportSheetBtn = document.getElementById('exportSheetBtn');
+const exportModal = document.getElementById('exportModal');
+const exportCancel = document.getElementById('exportCancel');
+const exportConfirm = document.getElementById('exportConfirm');
+const exportStatus = document.getElementById('exportStatus');
 
 function isLoggedIn() {
   return sessionStorage.getItem(AUTH_KEY) === 'true';
@@ -141,12 +152,11 @@ function renderOrders() {
   ordersEmpty.classList.add('hidden');
   ordersList.classList.remove('hidden');
   ordersList.innerHTML = orders
-    .map(
-      (order) => {
-        const isPending = order.status === 'pending';
-        const statusText = isPending ? 'รอจ่าย' : 'จ่ายแล้ว';
-        const statusClass = isPending ? 'pending' : 'paid';
-        return `
+    .map((order) => {
+      const isPending = order.status === 'pending';
+      const statusText = isPending ? 'รอจ่าย' : 'จ่ายแล้ว';
+      const statusClass = isPending ? 'pending' : 'paid';
+      return `
     <article class="order-card" data-order-number="${order.orderNumber}">
       <div class="order-card-header">
         <div class="order-card-header-row">
@@ -156,33 +166,29 @@ function renderOrders() {
         <div class="order-card-header-row">
           <span class="order-card-date">${formatDate(order.date)}</span>
           <div class="order-actions">
-  ${isPending ? `<button type="button" class="btn-paid" data-order-number="${order.orderNumber}">จ่ายแล้ว</button>` : ''}
-  <button type="button" class="btn-delete" data-order-number="${order.orderNumber}">ลบ</button>
-</div>
+            ${isPending ? `<button type="button" class="btn-paid" data-order-number="${order.orderNumber}">จ่ายแล้ว</button>` : ''}
+            <button type="button" class="btn-delete" data-order-number="${order.orderNumber}">ลบ</button>
+          </div>
         </div>
       </div>
       <div class="order-card-body">
         <ul class="order-items">
-          ${order.items
-            .map(
-              (i) =>
-                `<li class="order-item"><span>
-    ${i.name}
-    ${i.temp ? `<br><small>${i.temp}, ${i.sweet}</small>` : ""}
-    × ${i.qty}
-  </span>
-  <span>${formatMoney(i.price * i.qty)}</span></li>`
-            )
-            .join('')}
+          ${order.items.map((i) => `
+            <li class="order-item">
+              <span>
+                ${i.name}
+                ${i.temp ? `<br><small>${i.temp}, ${i.sweet}</small>` : ''}
+                × ${i.qty}
+              </span>
+              <span>${formatMoney(i.price * i.qty)}</span>
+            </li>`).join('')}
         </ul>
         <div class="order-totals">
           <div class="row total"><span>รวมทั้งหมด</span><span>${formatMoney(order.total)}</span></div>
         </div>
       </div>
-    </article>
-  `;
-      }
-    )
+    </article>`;
+    })
     .join('');
 
   ordersList.querySelectorAll('.btn-paid').forEach((btn) => {
@@ -191,33 +197,23 @@ function renderOrders() {
       markOrderAsPaid(num);
     });
   });
+
   ordersList.querySelectorAll('.btn-delete').forEach((btn) => {
-
-  btn.addEventListener('click', () => {
-
-    const num = parseInt(btn.dataset.orderNumber, 10);
-
-    deleteOrder(num);
-
+    btn.addEventListener('click', () => {
+      const num = parseInt(btn.dataset.orderNumber, 10);
+      deleteOrder(num);
+    });
   });
-
-});
 }
 
 function deleteOrder(orderNumber) {
-
   if (!confirm(`ลบออเดอร์ #${orderNumber} ?`)) return;
-
   const orders = loadOrders();
-
   const newOrders = orders.filter(o => o.orderNumber !== orderNumber);
-
   saveOrders(newOrders);
-
   renderDailySummary();
   renderOrders();
   renderHistory();
-
 }
 
 function renderHistory() {
@@ -245,10 +241,9 @@ function renderHistory() {
   const sortedDays = Object.keys(byDay).sort((a, b) => b.localeCompare(a));
 
   historyContent.innerHTML = sortedDays
-    .map(
-      (key) => {
-        const day = byDay[key];
-        return `
+    .map((key) => {
+      const day = byDay[key];
+      return `
     <section class="history-day">
       <div class="history-day-header">
         <span class="history-day-date">${formatDateOnly(day.date)}</span>
@@ -256,18 +251,13 @@ function renderHistory() {
       </div>
       <div class="history-day-body">
         <ul class="history-day-orders">
-          ${day.orders
-            .map(
-              (o) =>
-                `<li><span>ออเดอร์ #${o.orderNumber} — ${formatDate(o.date)}</span><span>${formatMoney(o.total)}</span></li>`
-            )
-            .join('')}
+          ${day.orders.map((o) =>
+            `<li><span>ออเดอร์ #${o.orderNumber} — ${formatDate(o.date)}</span><span>${formatMoney(o.total)}</span></li>`
+          ).join('')}
         </ul>
       </div>
-    </section>
-  `;
-      }
-    )
+    </section>`;
+    })
     .join('');
 }
 
@@ -324,6 +314,8 @@ adminTabs.forEach((tab) => {
   });
 });
 
+// ==================== Clear Data Modal ====================
+
 function openClearDataModal() {
   clearDataError.textContent = '';
   clearDataCode.value = '';
@@ -347,7 +339,6 @@ function clearAllOrders() {
 }
 
 clearDataBtn.addEventListener('click', openClearDataModal);
-
 clearDataCancel.addEventListener('click', closeClearDataModal);
 
 clearDataConfirm.addEventListener('click', () => {
@@ -373,17 +364,28 @@ clearDataModal.addEventListener('click', (e) => {
 });
 
 // ==================== Google Sheet Export ====================
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxudTwIvEDjD_ZduaATlcZl023x-NbPuKVI0cK1KCpaEfsPJO09l_okl0plyqLseiaMaQ/exec'; // ← วาง URL ตรงนี้
 
-async function exportToGoogleSheet() {
+function openExportModal() {
+  exportStatus.textContent = '';
+  exportStatus.className = 'export-status';
+  exportConfirm.disabled = false;
+  exportConfirm.textContent = '📤 ส่งข้อมูล';
+  exportModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeExportModal() {
+  exportModal.setAttribute('aria-hidden', 'true');
+  exportStatus.textContent = '';
+}
+
+function getFilteredOrders(range) {
   const orders = loadOrders();
-  
-  if (orders.length === 0) {
-    alert('ไม่มีข้อมูลให้ส่ง');
-    return;
-  }
+  if (range === 'today') return orders.filter(o => isToday(o.date));
+  if (range === 'month') return orders.filter(o => isWithinLast30Days(o.date));
+  return orders; // all
+}
 
-  // สรุปรายวัน
+function buildSummary(orders) {
   const byDay = {};
   orders.filter(o => o.status === 'paid').forEach(o => {
     const key = getDateKey(o.date);
@@ -391,15 +393,34 @@ async function exportToGoogleSheet() {
     byDay[key].orderCount++;
     byDay[key].total += o.total;
   });
+  return Object.values(byDay).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+exportSheetBtn.addEventListener('click', openExportModal);
+exportCancel.addEventListener('click', closeExportModal);
+exportModal.addEventListener('click', (e) => {
+  if (e.target === exportModal) closeExportModal();
+});
+
+exportConfirm.addEventListener('click', async () => {
+  const range = document.querySelector('input[name="exportRange"]:checked').value;
+  const orders = getFilteredOrders(range);
+
+  if (orders.length === 0) {
+    exportStatus.textContent = '⚠️ ไม่มีข้อมูลในช่วงที่เลือก';
+    exportStatus.className = 'export-status error';
+    return;
+  }
 
   const payload = {
     orders: orders,
-    summary: Object.values(byDay)
+    summary: buildSummary(orders)
   };
 
-  const exportBtn = document.getElementById('exportSheetBtn');
-  exportBtn.disabled = true;
-  exportBtn.textContent = 'กำลังส่ง...';
+  exportConfirm.disabled = true;
+  exportConfirm.textContent = 'กำลังส่ง...';
+  exportStatus.textContent = '';
+  exportStatus.className = 'export-status';
 
   try {
     const res = await fetch(GOOGLE_SCRIPT_URL, {
@@ -409,18 +430,20 @@ async function exportToGoogleSheet() {
     });
     const result = await res.json();
     if (result.success) {
-      alert(`✅ ส่งข้อมูลไป Google Sheet สำเร็จ!\nออเดอร์ทั้งหมด ${orders.length} รายการ`);
+      exportStatus.textContent = `✅ ส่งสำเร็จ! ${orders.length} ออเดอร์`;
+      exportStatus.className = 'export-status success';
+      exportConfirm.textContent = '✅ สำเร็จ';
     } else {
-      alert('❌ เกิดข้อผิดพลาด: ' + result.error);
+      throw new Error(result.error || 'Unknown error');
     }
   } catch (err) {
-    alert('❌ ไม่สามารถเชื่อมต่อได้: ' + err.message);
-  } finally {
-    exportBtn.disabled = false;
-    exportBtn.textContent = '📊 Export to Google Sheet';
+    exportStatus.textContent = '❌ เกิดข้อผิดพลาด: ' + err.message;
+    exportStatus.className = 'export-status error';
+    exportConfirm.disabled = false;
+    exportConfirm.textContent = '📤 ส่งข้อมูล';
   }
-}
+});
+
+// =============================================================
 
 checkAuth();
-
-
