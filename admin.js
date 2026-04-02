@@ -11,7 +11,7 @@ const ORDERS_STORAGE_KEY = 'tea-coffee-pos-orders';
 const ORDER_NUMBER_KEY = 'tea-coffee-pos-orderNumber';
 
 // ==================== Google Sheet Config ====================
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyW9YA2WglWbRuSaExrjw5T4SsS6nl6Ij4BH_a-rjrRqrUAxXYc6mZA6E45hJLlrOi96A/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLD2S4grEVSg9qp9zraTFVfJIcC43ufYsUO544mQS4/dev';
 // =============================================================
 
 // ==================== DOM Elements ====================
