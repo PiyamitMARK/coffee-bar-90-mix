@@ -29,8 +29,8 @@ const products = {
     { id: 'cocoa', name: 'โกโก้', price: 40, image: IMG(9) },
     { id: 'coconut', name: 'มะพร้าวปั่น', price: 45, image: IMG(333) },
     { id: 'pepsi', name: 'เป็ปซี่', price: 15, image: IMG(80) },
-    { id: 'pepsi', name: 'น้ำแดงแฟนต้า', price: 15, image: IMG(543) },
-    { id: 'pepsi', name: 'สไปร์ท', price: 15, image: IMG(345) },
+    { id: 'fanta', name: 'น้ำแดงแฟนต้า', price: 15, image: IMG(543) },
+    { id: 'sprite', name: 'สไปร์ท', price: 15, image: IMG(345) },
     { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) }, 
   ],
   kaosoi: [
@@ -402,33 +402,27 @@ function updateSelectedItem() {
 }
 
 document.querySelectorAll(".temp-btn").forEach(btn => {
-
   btn.addEventListener("click", () => {
-
-    document.querySelectorAll(".temp-btn")
-      .forEach(b => b.classList.remove("active"));
-
+    document.querySelectorAll(".temp-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-
     selectedTemp = btn.dataset.temp;
-
-
+    
+    if (cart.length > 0) {
+      cart[cart.length - 1].temp = selectedTemp;
+      renderCart();
+    }
   });
-
 });
 
 document.querySelectorAll(".sweet-btn").forEach(btn => {
-
   btn.addEventListener("click", () => {
-
-    document.querySelectorAll(".sweet-btn")
-      .forEach(b => b.classList.remove("active"));
-
+    document.querySelectorAll(".sweet-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-
     selectedSweet = btn.dataset.sweet;
 
-
+    if (cart.length > 0) {
+      cart[cart.length - 1].sweet = selectedSweet;
+      renderCart();
+    }
   });
-
 });
