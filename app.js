@@ -20,16 +20,18 @@ const products = {
     { id: 'matcha-latte', name: 'มัทฉะลาเต้', price: 60, image: IMG(3) },
     { id: 'coconut-matcha', name: 'มัทฉะมะพร้าว', price: 60, image: IMG(15) },
   ],
-  tea: [
+  namwhan: [
     { id: 'thai-tea', name: 'ชาไทย', price: 40, image: IMG(1) },
     { id: 'green-tea', name: 'ชาเขียว', price: 40, image: IMG(10) },
     { id: 'black-tea', name: 'ชาดำเย็น', price: 40, image: IMG(5) },
     { id: 'lemon-tea', name: 'ชามะนาว', price: 40, image: IMG(13) },
-  ],
-  milk: [
     { id: 'pink-milk', name: 'นมชมพู', price: 40, image: IMG(14) },
     { id: 'cocoa', name: 'โกโก้', price: 40, image: IMG(9) },
     { id: 'coconut', name: 'มะพร้าวปั่น', price: 45, image: IMG(333) },
+    { id: 'pepsi', name: 'เป็ปซี่', price: 15, image: IMG(80) },
+    { id: 'pepsi', name: 'น้ำแดงแฟนต้า', price: 15, image: IMG(543) },
+    { id: 'pepsi', name: 'สไปร์ท', price: 15, image: IMG(345) },
+    { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) }, 
   ],
   kaosoi: [
     { id: 'soi4', name: 'ข้าวซอยเนื้อ', price: 85, image: IMG(2223) },
@@ -37,6 +39,7 @@ const products = {
     { id: 'soi1', name: 'ข้าวซอยไก่', price: 65, image: IMG(111) },
     { id: 'soi3', name: 'น้ำเงี้ยว', price: 55, image: IMG(555) },
     { id: 'soi10', name: 'ไข่', price: 10, image: IMG(1090) },
+  ],
   kaomutod: [
     { id: 'kao1', name: 'ข้าวซอยเนื้อ', price: 85, image: IMG(2223) },
     { id: 'kao2', name: 'ข้าวซอยกระดูกหมู', price: 75, image: IMG(789) },
@@ -45,10 +48,6 @@ const products = {
     { id: 'kao10', name: 'ไข่', price: 10, image: IMG(1090) },
   ],
   soda: [
-    { id: 'pepsi', name: 'เป็ปซี่', price: 15, image: IMG(80) },
-    { id: 'pepsi', name: 'น้ำแดงแฟนต้า', price: 15, image: IMG(543) },
-    { id: 'pepsi', name: 'สไปร์ท', price: 15, image: IMG(345) },
-    { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) }, 
     { id: 'red-lime-soda', name: 'แดงมะนาวโซดา', price: 35, image: IMG(23) },
     { id: 'blue-hawaii-soda', name: 'บลูฮาวายมะนาวโซดา', price: 35, image: IMG(26) },
     { id: 'honey-lime-soda', name: 'น้ำผึ้งมะนาวโซดา', price: 35, image: IMG(27) },
