@@ -283,49 +283,14 @@ body {
 }
 
 @media (max-width: 768px) {
-  /* 1. บังคับให้ Layout เรียงต่อกันเป็นแนวตั้ง */
-  .main {
-    display: flex;
-    flex-direction: column;
-    grid-template-columns: none; /* ยกเลิก Grid เดิม */
-    overflow-y: auto;
+  .main { 
+    display: flex; 
+    flex-direction: column; 
     height: auto;
+    overflow: visible;
   }
-
-  /* 2. ปรับความกว้างของส่วนสินค้าให้เต็มจอ */
-  .products-section {
-    width: 100%;
-    padding: 1rem;
-  }
-
-  /* 3. ปรับตระกร้าสินค้าให้มาอยู่ต่อด้านล่าง และเต็มจอ */
-  .cart-section {
-    width: 100%;
-    border-left: none;
-    border-top: 2px solid var(--cream-dark);
-    max-height: none;
-    position: relative;
-    box-shadow: 0 -4px 12px var(--shadow);
-  }
-
-  /* 4. ปรับ Grid สินค้าให้เล็กลงหน่อยสำหรับจอเล็ก */
-  .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 0.5rem;
-  }
-
-  /* 5. แก้ไข Header ให้ไม่เบียดกัน */
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .header-meta {
-    width: 100%;
-    justify-content: space-between;
-    font-size: 0.8rem;
-  }
+  .cart-section { border-left: none; border-top: 2px solid var(--cream-dark); }
+  .products-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 480px) {
