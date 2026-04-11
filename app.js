@@ -1,11 +1,27 @@
 /**
  * Tea & Coffee Shop POS
+ * ใช้ Firebase Realtime Database — sync ทุกเครื่องแบบ real-time
  */
 
-// รูปสินค้า — แมปรูปให้ตรงกับของ (จากโฟลเดอร์ images)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, update, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArtz0xjTNBNXbzeZjk-gmafuwszw9ErVk",
+  authDomain: "tea-coffee-pos-23195.firebaseapp.com",
+  databaseURL: "https://tea-coffee-pos-23195-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tea-coffee-pos-23195",
+  storageBucket: "tea-coffee-pos-23195.firebasestorage.app",
+  messagingSenderId: "58906181234",
+  appId: "1:58906181234:web:6b633330168a619fce8ceb"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getDatabase(firebaseApp);
+
+// ==================== รูปสินค้า ====================
 const IMG = (n) => 'images/img' + n + '.png';
 
-// เมนูจาก menu.pdf + รูปตรงกับของ
 const products = {
   coffee: [
     { id: 'espresso', name: 'เอสเปรสโซ่', price: 55, image: IMG(12) },
@@ -31,7 +47,7 @@ const products = {
     { id: 'pepsi', name: 'เป็ปซี่', price: 15, image: IMG(80) },
     { id: 'fanta', name: 'น้ำแดงแฟนต้า', price: 15, image: IMG(543) },
     { id: 'sprite', name: 'สไปร์ท', price: 15, image: IMG(345) },
-    { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) }, 
+    { id: 'water', name: 'น้ำเปล่า', price: 10, image: IMG(60) },
   ],
   kaosoi: [
     { id: 'soi4', name: 'ข้าวซอยเนื้อ', price: 85, image: IMG(2223) },
@@ -58,29 +74,15 @@ const products = {
     { id: 'mix-berry-yogurt', name: 'มิกซ์เบอร์รี่โยเกิร์ต', price: 55, image: IMG(20) },
   ],
 };
-const OPTIONS = {
-  temp: ["ร้อน", "เย็น", "ปั่น"],
-  sweet: ["ไม่หวาน", "หวานน้อย", "หวานปกติ", "หวานมาก"]
-};
 
+// ==================== State ====================
 let cart = [];
 let orderNumber = 1001;
 let currentCategory = 'coffee';
 let selectedTemp = "เย็น";
 let selectedSweet = "หวานปกติ";
-let selectedCartIndex = null;
 
-function setTemp(temp) {
-  selectedTemp = temp;
-  console.log("Temp =", temp);
-}
-
-function setSweet(sweet) {
-  selectedSweet = sweet;
-  console.log("Sweet =", sweet);
-}
-
-// DOM
+// ==================== DOM ====================
 const currentDateEl = document.getElementById('currentDate');
 const orderNumberEl = document.getElementById('orderNumber');
 const categoryBtns = document.querySelectorAll('.category-btn');
@@ -98,72 +100,44 @@ const receiptItemsEl = document.getElementById('receiptItems');
 const receiptTotal = document.getElementById('receiptTotal');
 const printReceiptBtn = document.getElementById('printReceipt');
 const newOrderBtn = document.getElementById('newOrder');
+const confirmOrderModal = document.getElementById('confirmOrderModal');
+const confirmOrderList = document.getElementById('confirmOrderList');
+const confirmTotal = document.getElementById('confirmTotal');
+const confirmOrderCancel = document.getElementById('confirmOrderCancel');
+const confirmOrderOk = document.getElementById('confirmOrderOk');
 
+// ==================== Helpers ====================
 function formatMoney(n) {
   return '฿' + Number(n).toFixed(2);
 }
 
 function setDate() {
-  const d = new Date();
-  currentDateEl.textContent = d.toLocaleDateString('th-TH', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+  currentDateEl.textContent = new Date().toLocaleDateString('th-TH', {
+    weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
   });
 }
 
+// ==================== Products ====================
 function renderProducts() {
-  const items = products[currentCategory] || [];
-  productsGrid.innerHTML = items
-    .map(
-      (p) => {
-        const imgSrc = p.image || '';
-        return `
-    <button type="button" class="product-card" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-image="${imgSrc}">
-      <img class="product-img" src="${imgSrc}" alt="${p.name}" loading="lazy">
+  productsGrid.innerHTML = (products[currentCategory] || []).map((p) => `
+    <button type="button" class="product-card"
+      data-id="${p.id}" data-name="${p.name}"
+      data-price="${p.price}" data-image="${p.image}">
+      <img class="product-img" src="${p.image}" alt="${p.name}" loading="lazy">
       <p class="product-name">${p.name}</p>
       <p class="product-price">${formatMoney(p.price)}</p>
     </button>
-  `;
-      }
-    )
-    .join('');
+  `).join('');
 
   productsGrid.querySelectorAll('.product-card').forEach((btn) => {
     btn.addEventListener('click', () => addToCart(btn.dataset));
   });
 }
 
+// ==================== Cart ====================
 function addToCart({ id, name, price, image }) {
-
-  const numPrice = parseFloat(price);
-
-  cart.push({
-    id,
-    name,
-    price: numPrice,
-    qty: 1,
-    image,
-    temp: selectedTemp,
-    sweet: selectedSweet
-  });
-
-  selectedCartIndex = cart.length - 1;
-
+  cart.push({ id, name, price: parseFloat(price), qty: 1, image, temp: selectedTemp, sweet: selectedSweet });
   renderCart();
-
-}
-
-function updateSelectedItem() {
-
-  if (selectedCartIndex === null) return;
-
-  cart[selectedCartIndex].temp = selectedTemp;
-  cart[selectedCartIndex].sweet = selectedSweet;
-
-  renderCart();
-
 }
 
 function removeFromCart(index) {
@@ -172,9 +146,8 @@ function removeFromCart(index) {
 }
 
 function updateQty(index, delta) {
-  const item = cart[index];
-  item.qty += delta;
-  if (item.qty <= 0) removeFromCart(index);
+  cart[index].qty += delta;
+  if (cart[index].qty <= 0) removeFromCart(index);
   else renderCart();
 }
 
@@ -185,16 +158,10 @@ function renderCart() {
   cart.forEach((item, index) => {
     const li = document.createElement('li');
     li.className = 'cart-item';
-    const imgHtml = item.image ? `<img class="cart-item-img" src="${item.image}" alt="">` : '<span class="cart-item-img-placeholder"></span>';
     li.innerHTML = `
-      ${imgHtml}
+      ${item.image ? `<img class="cart-item-img" src="${item.image}" alt="">` : '<span class="cart-item-img-placeholder"></span>'}
       <div class="cart-item-info">
-        <div class="cart-item-name">
-  ${item.name}
-  <br>
-  <small>${item.temp}, ${item.sweet}</small>
-</div>
-</div>
+        <div class="cart-item-name">${item.name}<br><small>${item.temp}, ${item.sweet}</small></div>
         <div class="cart-item-price">${formatMoney(item.price)} × ${item.qty}</div>
       </div>
       <div class="cart-item-qty">
@@ -203,16 +170,12 @@ function renderCart() {
         <button type="button" aria-label="Increase">+</button>
       </div>
     `;
-    const lineTotal = item.price * item.qty;
-    const dec = li.querySelector('.cart-item-qty button:first-child');
-    const inc = li.querySelector('.cart-item-qty button:last-child');
-    dec.addEventListener('click', () => updateQty(index, -1));
-    inc.addEventListener('click', () => updateQty(index, 1));
+    li.querySelector('.cart-item-qty button:first-child').addEventListener('click', () => updateQty(index, -1));
+    li.querySelector('.cart-item-qty button:last-child').addEventListener('click', () => updateQty(index, 1));
     cartItemsEl.appendChild(li);
   });
 
-  const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  totalEl.textContent = formatMoney(total);
+  totalEl.textContent = formatMoney(cart.reduce((sum, i) => sum + i.price * i.qty, 0));
 }
 
 function clearCart() {
@@ -220,19 +183,44 @@ function clearCart() {
   renderCart();
 }
 
+// ==================== Firebase: Order Number ====================
+async function loadOrderNumber() {
+  const today = new Date().toISOString().slice(0, 10);
+  const metaSnap = await get(ref(db, 'meta'));
+  const meta = metaSnap.exists() ? metaSnap.val() : {};
+
+  if (meta.lastOrderDate !== today) {
+    // วันใหม่ — reset เลขออเดอร์
+    orderNumber = 1001;
+    await update(ref(db, 'meta'), { orderNumber: 1001, lastOrderDate: today });
+  } else {
+    orderNumber = meta.orderNumber || 1001;
+  }
+  orderNumberEl.textContent = orderNumber;
+}
+
+// ==================== Firebase: Save Order ====================
+async function saveOrder() {
+  const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const order = {
+    orderNumber,
+    date: new Date().toISOString(),
+    items: cart.map((i) => ({ name: i.name, price: i.price, qty: i.qty, temp: i.temp, sweet: i.sweet })),
+    total,
+    status: 'pending',
+  };
+  await push(ref(db, 'orders'), order);
+}
+
+// ==================== Receipt ====================
 function showReceipt() {
   const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-
   receiptOrderNum.textContent = orderNumber;
   receiptDate.textContent = new Date().toLocaleString('th-TH');
-  receiptItemsEl.innerHTML = cart
-    .map(
-      (i) =>
-        `<div class="receipt-item"><span>${i.name} × ${i.qty}</span><span>${formatMoney(i.price * i.qty)}</span></div>`
-    )
-    .join('');
+  receiptItemsEl.innerHTML = cart.map((i) =>
+    `<div class="receipt-item"><span>${i.name} × ${i.qty}</span><span>${formatMoney(i.price * i.qty)}</span></div>`
+  ).join('');
   receiptTotal.textContent = formatMoney(total);
-
   receiptModal.setAttribute('aria-hidden', 'false');
 }
 
@@ -240,47 +228,12 @@ function closeReceipt() {
   receiptModal.setAttribute('aria-hidden', 'true');
 }
 
-const ORDERS_STORAGE_KEY = 'tea-coffee-pos-orders';
-const ORDER_NUMBER_KEY = 'tea-coffee-pos-orderNumber';
-const LAST_ORDER_DATE_KEY = 'tea-coffee-pos-lastOrderDate';
-
-function saveOrder() {
-  const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  const order = {
-    orderNumber,
-    date: new Date().toISOString(),
-    items: cart.map((i) => ({
-  name: i.name,
-  price: i.price,
-  qty: i.qty,
-  temp: i.temp,
-  sweet: i.sweet
-})),
-    total,
-    status: 'pending', // รอจ่าย → จ่ายแล้ว ใน Admin
-  };
-  const orders = JSON.parse(localStorage.getItem(ORDERS_STORAGE_KEY) || '[]');
-  orders.unshift(order);
-  localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
-  const today = new Date().toISOString().slice(0, 10);
-  localStorage.setItem(ORDER_NUMBER_KEY, String(orderNumber));
-  localStorage.setItem(LAST_ORDER_DATE_KEY, today);
-}
-
-const confirmOrderModal = document.getElementById('confirmOrderModal');
-const confirmOrderList = document.getElementById('confirmOrderList');
-const confirmTotal = document.getElementById('confirmTotal');
-const confirmOrderCancel = document.getElementById('confirmOrderCancel');
-const confirmOrderOk = document.getElementById('confirmOrderOk');
-
+// ==================== Confirm Modal ====================
 function openConfirmOrderModal() {
   const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  confirmOrderList.innerHTML = cart
-    .map(
-      (i) =>
-        `<div class="confirm-order-item"><span>${i.name} × ${i.qty}</span><span>${formatMoney(i.price * i.qty)}</span></div>`
-    )
-    .join('');
+  confirmOrderList.innerHTML = cart.map((i) =>
+    `<div class="confirm-order-item"><span>${i.name} × ${i.qty}</span><span>${formatMoney(i.price * i.qty)}</span></div>`
+  ).join('');
   confirmTotal.innerHTML = `<span>รวมทั้งหมด</span><span>${formatMoney(total)}</span>`;
   confirmOrderModal.setAttribute('aria-hidden', 'false');
 }
@@ -289,25 +242,14 @@ function closeConfirmOrderModal() {
   confirmOrderModal.setAttribute('aria-hidden', 'true');
 }
 
-function completeOrder() {
-  if (cart.length === 0) return;
-  openConfirmOrderModal();
-}
-
-function setTemp(temp) {
-  selectedTemp = temp;
-}
-
-function setSweet(sweet) {
-  selectedSweet = sweet;
-}
-
-function newOrder() {
+// ==================== New Order ====================
+async function newOrder() {
   orderNumber += 1;
   orderNumberEl.textContent = orderNumber;
-  const today = new Date().toISOString().slice(0, 10);
-  localStorage.setItem(ORDER_NUMBER_KEY, String(orderNumber));
-  localStorage.setItem(LAST_ORDER_DATE_KEY, today);
+  await update(ref(db, 'meta'), {
+    orderNumber,
+    lastOrderDate: new Date().toISOString().slice(0, 10)
+  });
   cart = [];
   renderCart();
   closeReceipt();
@@ -315,22 +257,12 @@ function newOrder() {
 
 function holdOrder() {
   if (cart.length === 0) return;
-  // In a full POS you'd save to a "held orders" list; here we just clear for next
   if (confirm('ถือรายการนี้และเริ่มออเดอร์ใหม่? (รายการปัจจุบันจะถูกล้าง)')) {
-    orderNumber += 1;
-    orderNumberEl.textContent = orderNumber;
-    const today = new Date().toISOString().slice(0, 10);
-    localStorage.setItem(ORDER_NUMBER_KEY, String(orderNumber));
-    localStorage.setItem(LAST_ORDER_DATE_KEY, today);
-    clearCart();
+    newOrder();
   }
 }
 
-function printReceipt() {
-  window.print();
-}
-
-// Category tabs
+// ==================== Event Listeners ====================
 categoryBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
     categoryBtns.forEach((b) => b.classList.remove('active'));
@@ -341,72 +273,27 @@ categoryBtns.forEach((btn) => {
 });
 
 clearCartBtn.addEventListener('click', clearCart);
-completeOrderBtn.addEventListener('click', completeOrder);
-
-confirmOrderCancel.addEventListener('click', () => {
-  closeConfirmOrderModal();
-});
-
-confirmOrderOk.addEventListener('click', () => {
-  closeConfirmOrderModal();
-  saveOrder();
-  showReceipt();
-});
-
-confirmOrderModal.addEventListener('click', (e) => {
-  if (e.target === confirmOrderModal) closeConfirmOrderModal();
-});
+completeOrderBtn.addEventListener('click', () => { if (cart.length > 0) openConfirmOrderModal(); });
 holdOrderBtn.addEventListener('click', holdOrder);
-printReceiptBtn.addEventListener('click', printReceipt);
+printReceiptBtn.addEventListener('click', () => window.print());
 newOrderBtn.addEventListener('click', newOrder);
 
-receiptModal.addEventListener('click', (e) => {
-  if (e.target === receiptModal) closeReceipt();
+confirmOrderCancel.addEventListener('click', closeConfirmOrderModal);
+confirmOrderModal.addEventListener('click', (e) => { if (e.target === confirmOrderModal) closeConfirmOrderModal(); });
+receiptModal.addEventListener('click', (e) => { if (e.target === receiptModal) closeReceipt(); });
+
+confirmOrderOk.addEventListener('click', async () => {
+  closeConfirmOrderModal();
+  await saveOrder();
+  showReceipt();
 });
-
-// Init: เริ่มวันใหม่ให้ reset คิวเป็น 1001
-const today = new Date().toISOString().slice(0, 10);
-const lastOrderDate = localStorage.getItem(LAST_ORDER_DATE_KEY);
-if (lastOrderDate !== today) {
-  orderNumber = 1001;
-  orderNumberEl.textContent = orderNumber;
-  localStorage.setItem(ORDER_NUMBER_KEY, '1001');
-  localStorage.setItem(LAST_ORDER_DATE_KEY, today);
-} else {
-  const savedOrderNum = localStorage.getItem(ORDER_NUMBER_KEY);
-  if (savedOrderNum) {
-    orderNumber = parseInt(savedOrderNum, 10);
-    orderNumberEl.textContent = orderNumber;
-  }
-}
-setDate();
-renderProducts();
-renderCart();
-
-
-// ===== OPTIONS SYSTEM =====
-
-function updateSelectedItem() {
-
-  if (selectedCartIndex === null) return;
-
-  cart[selectedCartIndex].temp = selectedTemp;
-  cart[selectedCartIndex].sweet = selectedSweet;
-
-  renderCart();
-
-}
 
 document.querySelectorAll(".temp-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".temp-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     selectedTemp = btn.dataset.temp;
-    
-    if (cart.length > 0) {
-      cart[cart.length - 1].temp = selectedTemp;
-      renderCart();
-    }
+    if (cart.length > 0) { cart[cart.length - 1].temp = selectedTemp; renderCart(); }
   });
 });
 
@@ -415,10 +302,12 @@ document.querySelectorAll(".sweet-btn").forEach(btn => {
     document.querySelectorAll(".sweet-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     selectedSweet = btn.dataset.sweet;
-
-    if (cart.length > 0) {
-      cart[cart.length - 1].sweet = selectedSweet;
-      renderCart();
-    }
+    if (cart.length > 0) { cart[cart.length - 1].sweet = selectedSweet; renderCart(); }
   });
 });
+
+// ==================== Init ====================
+setDate();
+renderProducts();
+renderCart();
+loadOrderNumber();
