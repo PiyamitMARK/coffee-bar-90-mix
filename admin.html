@@ -34,7 +34,6 @@
           <span class="admin-user">Mixzaza</span>
         </div>
         <div class="admin-header-right">
-          <!-- ✅ เพิ่มปุ่ม Export -->
           <button type="button" class="btn btn-export" id="exportSheetBtn">📊 Export to Google Sheet</button>
           <button type="button" class="btn btn-danger-outline" id="clearDataBtn">ล้างสินค้า</button>
           <a href="index.html" class="btn btn-secondary">POS</a>
@@ -42,45 +41,46 @@
         </div>
       </header>
 
-      <!-- ✅ Export Modal -->
+      <!-- Export Modal -->
       <div class="modal" id="exportModal" aria-hidden="true">
-  <div class="modal-box">
-    <h3 class="modal-title">📊 Export to Google Sheet</h3>
-    <p class="modal-desc">เลือกช่วงวันที่ต้องการส่งไป Google Sheet</p>
-    <div class="export-options">
-      <label class="export-option">
-        <input type="radio" name="exportRange" value="today" checked>
-        <span>วันนี้เท่านั้น</span>
-      </label>
-      <label class="export-option">
-        <input type="radio" name="exportRange" value="month">
-        <span>ย้อนหลัง 30 วัน</span>
-      </label>
-      <label class="export-option">
-        <input type="radio" name="exportRange" value="custom">
-        <span>เลือกช่วงวันเอง</span>
-      </label>
-    </div>
-    <div id="customDateRange" class="custom-date-range hidden">
-      <div class="date-row">
-        <div class="date-field">
-          <label class="label" for="dateFrom">จาก</label>
-          <input type="date" id="dateFrom">
-        </div>
-        <div class="date-field">
-          <label class="label" for="dateTo">ถึง</label>
-          <input type="date" id="dateTo">
+        <div class="modal-box">
+          <h3 class="modal-title">📊 Export to Google Sheet</h3>
+          <p class="modal-desc">เลือกช่วงวันที่ต้องการส่งไป Google Sheet</p>
+          <div class="export-options">
+            <label class="export-option">
+              <input type="radio" name="exportRange" value="today" checked>
+              <span>วันนี้เท่านั้น</span>
+            </label>
+            <label class="export-option">
+              <input type="radio" name="exportRange" value="month">
+              <span>ย้อนหลัง 30 วัน</span>
+            </label>
+            <label class="export-option">
+              <input type="radio" name="exportRange" value="custom">
+              <span>เลือกช่วงวันเอง</span>
+            </label>
+          </div>
+          <div id="customDateRange" class="custom-date-range hidden">
+            <div class="date-row">
+              <div class="date-field">
+                <label class="label" for="dateFrom">จาก</label>
+                <input type="date" id="dateFrom">
+              </div>
+              <div class="date-field">
+                <label class="label" for="dateTo">ถึง</label>
+                <input type="date" id="dateTo">
+              </div>
+            </div>
+          </div>
+          <p id="exportStatus" class="export-status" aria-live="polite"></p>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="exportCancel">ยกเลิก</button>
+            <button type="button" class="btn btn-primary" id="exportConfirm">📤 ส่งข้อมูล</button>
+          </div>
         </div>
       </div>
-    </div>
-    <p id="exportStatus" class="export-status" aria-live="polite"></p>
-    <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" id="exportCancel">ยกเลิก</button>
-      <button type="button" class="btn btn-primary" id="exportConfirm">📤 ส่งข้อมูล</button>
-    </div>
-  </div>
-</div>
 
+      <!-- Clear Data Modal -->
       <div class="modal" id="clearDataModal" aria-hidden="true">
         <div class="modal-box">
           <h3 class="modal-title">ล้างรายการสั่งซื้อทั้งหมด</h3>
@@ -137,6 +137,7 @@
     </div>
   </div>
 
-  <script src="admin.js"></script>
+  <!-- เปลี่ยนเป็น type="module" สำหรับ Firebase -->
+  <script type="module" src="admin.js"></script>
 </body>
 </html>
