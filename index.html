@@ -30,32 +30,23 @@
           <button class="category-btn" data-category="soda">โซดา</button>
         </nav>
 
-<div class="options-bar">
-
-  <div class="options-group">
-    <div class="options-label">ประเภท:</div>
-
-    <button class="option-btn temp-btn active" data-temp="เย็น">เย็น</button>
-    <button class="option-btn temp-btn" data-temp="ร้อน">ร้อน</button>
-    <button class="option-btn temp-btn" data-temp="ปั่น">ปั่น</button>
-
-  </div>
-
-  <div class="options-group">
-    <div class="options-label">หวาน:</div>
-
-    <button class="option-btn sweet-btn" data-sweet="ไม่หวาน">ไม่หวาน</button>
-    <button class="option-btn sweet-btn" data-sweet="หวานน้อย">หวานน้อย</button>
-    <button class="option-btn sweet-btn active" data-sweet="หวานปกติ">หวานปกติ</button>
-    <button class="option-btn sweet-btn" data-sweet="หวานมาก">หวานมาก</button>
-
-  </div>
-
-</div>
-
-        <div class="products-grid" id="productsGrid">
-          <!-- Products injected by JS -->
+        <div class="options-bar">
+          <div class="options-group">
+            <div class="options-label">ประเภท:</div>
+            <button class="option-btn temp-btn active" data-temp="เย็น">เย็น</button>
+            <button class="option-btn temp-btn" data-temp="ร้อน">ร้อน</button>
+            <button class="option-btn temp-btn" data-temp="ปั่น">ปั่น</button>
+          </div>
+          <div class="options-group">
+            <div class="options-label">หวาน:</div>
+            <button class="option-btn sweet-btn" data-sweet="ไม่หวาน">ไม่หวาน</button>
+            <button class="option-btn sweet-btn" data-sweet="หวานน้อย">หวานน้อย</button>
+            <button class="option-btn sweet-btn active" data-sweet="หวานปกติ">หวานปกติ</button>
+            <button class="option-btn sweet-btn" data-sweet="หวานมาก">หวานมาก</button>
+          </div>
         </div>
+
+        <div class="products-grid" id="productsGrid"></div>
       </section>
 
       <aside class="cart-section">
@@ -75,7 +66,6 @@
               <span id="total">฿0.00</span>
             </div>
           </div>
-
           <div class="cart-actions">
             <button type="button" class="btn btn-secondary" id="holdOrder">ถือรายการ</button>
             <button type="button" class="btn btn-primary" id="completeOrder">สั่งซื้อ</button>
@@ -119,6 +109,7 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <!-- เปลี่ยนเป็น type="module" สำหรับ Firebase -->
+  <script type="module" src="app.js"></script>
 </body>
 </html>
