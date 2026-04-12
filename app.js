@@ -138,7 +138,6 @@ function renderProducts() {
 function addToCart({ id, name, price, image }) {
   cart.push({ id, name, price: parseFloat(price), qty: 1, image, temp: selectedTemp, sweet: selectedSweet });
   renderCart();
-  openCartOnMobile();
 }
 
 function removeFromCart(index) {
@@ -274,7 +273,7 @@ categoryBtns.forEach((btn) => {
 });
 
 clearCartBtn.addEventListener('click', clearCart);
-completeOrderBtn.addEventListener('click', () => { if (cart.length > 0) openConfirmOrderModal(); });
+completeOrderBtn.addEventListener('click', () => { if (cart.length > 0) { closeCartOnMobile(); openConfirmOrderModal(); } });
 holdOrderBtn.addEventListener('click', holdOrder);
 printReceiptBtn.addEventListener('click', () => window.print());
 newOrderBtn.addEventListener('click', newOrder);
@@ -327,6 +326,12 @@ if (cartHeader) {
 function openCartOnMobile() {
   if (isMobile() && cartSection) {
     cartSection.classList.add('open');
+  }
+}
+
+function closeCartOnMobile() {
+  if (isMobile() && cartSection) {
+    cartSection.classList.remove('open');
   }
 }
 
