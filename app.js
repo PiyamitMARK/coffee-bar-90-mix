@@ -92,7 +92,6 @@ const cartEmptyEl = document.getElementById('cartEmpty');
 const totalEl = document.getElementById('total');
 const clearCartBtn = document.getElementById('clearCart');
 const completeOrderBtn = document.getElementById('completeOrder');
-const holdOrderBtn = document.getElementById('holdOrder');
 const receiptModal = document.getElementById('receiptModal');
 const receiptOrderNum = document.getElementById('receiptOrderNum');
 const receiptDate = document.getElementById('receiptDate');
@@ -152,7 +151,7 @@ function updateQty(index, delta) {
 }
 
 function renderCart() {
-  cartEmptyEl.style.display = cart.length ? 'none' : 'block';
+  cartEmptyEl.style.display = cart.length ? 'none' : 'flex';
   cartItemsEl.querySelectorAll('.cart-item').forEach((el) => el.remove());
 
   cart.forEach((item, index) => {
@@ -161,25 +160,31 @@ function renderCart() {
     li.innerHTML = `
       ${item.image ? `<img class="cart-item-img" src="${item.image}" alt="">` : '<span class="cart-item-img-placeholder"></span>'}
       <div class="cart-item-info">
-        <div class="cart-item-name">${item.name}<br><small>${item.temp}, ${item.sweet}</small></div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-meta">${item.temp} · ${item.sweet}</div>
         <div class="cart-item-price">${formatMoney(item.price)} × ${item.qty}</div>
       </div>
       <div class="cart-item-qty">
-        <button type="button" aria-label="Decrease">−</button>
-        <span>${item.qty}</span>
-        <button type="button" aria-label="Increase">+</button>
+        <button type="button" class="qty-btn" aria-label="Decrease">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button type="button" class="qty-btn" aria-label="Increase">+</button>
       </div>
     `;
-    li.querySelector('.cart-item-qty button:first-child').addEventListener('click', () => updateQty(index, -1));
-    li.querySelector('.cart-item-qty button:last-child').addEventListener('click', () => updateQty(index, 1));
+    li.querySelector('.qty-btn:first-child').addEventListener('click', () => updateQty(index, -1));
+    li.querySelector('.qty-btn:last-child').addEventListener('click', () => updateQty(index, 1));
     cartItemsEl.appendChild(li);
   });
 
   const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
-  const cartTitle = document.querySelector('.cart-header h2');
-  cartTitle.innerHTML = totalQty > 0
-    ? `รายการสั่งซื้อ <span class="cart-badge">${totalQty}</span>`
-    : 'รายการสั่งซื้อ';
+  const badge = document.getElementById('cartBadge');
+  if (badge) {
+    if (totalQty > 0) {
+      badge.textContent = totalQty;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
 
   totalEl.textContent = formatMoney(cart.reduce((sum, i) => sum + i.price * i.qty, 0));
 }
@@ -261,12 +266,6 @@ async function newOrder() {
   closeReceipt();
 }
 
-function holdOrder() {
-  if (cart.length === 0) return;
-  if (confirm('ถือรายการนี้และเริ่มออเดอร์ใหม่? (รายการปัจจุบันจะถูกล้าง)')) {
-    newOrder();
-  }
-}
 
 // ==================== Event Listeners ====================
 categoryBtns.forEach((btn) => {
@@ -280,7 +279,6 @@ categoryBtns.forEach((btn) => {
 
 clearCartBtn.addEventListener('click', clearCart);
 completeOrderBtn.addEventListener('click', () => { if (cart.length > 0) { closeCartOnMobile(); openConfirmOrderModal(); } });
-holdOrderBtn.addEventListener('click', holdOrder);
 printReceiptBtn.addEventListener('click', () => window.print());
 newOrderBtn.addEventListener('click', newOrder);
 
