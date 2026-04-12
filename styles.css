@@ -26,6 +26,9 @@ body {
   color: var(--brown);
   min-height: 100vh;
   line-height: 1.4;
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: all 0.25s ease;
 }
 
 .app {
@@ -427,6 +430,22 @@ body {
   border-color: var(--brown-light);
   color: var(--brown-light);
 }
+.option-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.25s ease;
+}
+
+.option-btn.active {
+  background: linear-gradient(135deg, #4a3728, #6b5344);
+  color: white;
+  border: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
 
 /* Modal */
 .modal {
@@ -587,5 +606,25 @@ body {
   }
   .modal-actions {
     display: none !important;
+  }
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+
+  .products-section {
+    padding-bottom: 80px;
+  }
+
+  .cart-section {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    z-index: 100;
+    border-left: none;
+    border-top: 2px solid var(--cream-dark);
+    border-radius: 16px 16px 0 0;
   }
 }
