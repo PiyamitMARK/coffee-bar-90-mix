@@ -16,7 +16,7 @@
   <div id="loginScreen" class="screen">
     <div class="login-wrap">
       <div class="login-card">
-        <div class="login-icon">☕</div>
+        <div class="login-icon"></div>
         <h1 class="login-title">ร้านชากาแฟ</h1>
         <p class="login-sub">เข้าสู่ระบบแอดมิน</p>
         <form id="loginForm" class="login-form">
@@ -42,12 +42,12 @@
     <!-- Header -->
     <header class="admin-header">
       <div class="admin-header-left">
-        <h1 class="admin-logo">☕ แอดมิน</h1>
+        <h1 class="admin-logo"> แอดมิน</h1>
         <span class="admin-user-chip">Mixzaza</span>
       </div>
       <div class="admin-header-right">
-        <button type="button" class="btn btn-green" id="exportSheetBtn">📊 Export Sheet</button>
-        <button type="button" class="btn btn-outline-danger" id="clearDataBtn">🗑 ล้างข้อมูล</button>
+        <button type="button" class="btn btn-green" id="exportSheetBtn"> Export Sheet</button>
+        <button type="button" class="btn btn-outline-danger" id="clearDataBtn"> ล้างข้อมูล</button>
         <a href="index.html" class="btn btn-outline">POS</a>
         <button type="button" class="btn btn-outline" id="logoutBtn">ออกจากระบบ</button>
       </div>
@@ -58,14 +58,14 @@
       <!-- Summary cards -->
       <section class="summary-section">
         <div class="summary-card">
-          <span class="summary-icon">🧾</span>
+          <span class="summary-icon"></span>
           <div>
             <div class="summary-label">ออเดอร์วันนี้ (จ่ายแล้ว)</div>
             <div class="summary-value" id="todayOrderCount">0</div>
           </div>
         </div>
         <div class="summary-card accent">
-          <span class="summary-icon">💰</span>
+          <span class="summary-icon"></span>
           <div>
             <div class="summary-label">ยอดรวมวันนี้</div>
             <div class="summary-value" id="todayTotal">฿0.00</div>
@@ -83,7 +83,7 @@
       <div id="tabRecent" class="tab-panel">
         <div id="ordersList" class="orders-list"></div>
         <div id="ordersEmpty" class="empty-state hidden">
-          <p class="empty-icon">📋</p>
+          <p class="empty-icon"></p>
           <p>ยังไม่มีรายการสั่งซื้อ</p>
           <a href="index.html" class="link">ไปที่ POS →</a>
         </div>
@@ -93,7 +93,7 @@
       <div id="tabHistory" class="tab-panel hidden">
         <div id="historyContent" class="history-list"></div>
         <div id="historyEmpty" class="empty-state hidden">
-          <p class="empty-icon">📅</p>
+          <p class="empty-icon"></p>
           <p>ไม่มีข้อมูลย้อนหลัง</p>
         </div>
       </div>
@@ -104,7 +104,7 @@
   <!-- =============== MODAL: Export =============== -->
   <div class="modal" id="exportModal" aria-hidden="true">
     <div class="modal-box">
-      <h3 class="modal-title">📊 Export to Google Sheet</h3>
+      <h3 class="modal-title"> Export to Google Sheet</h3>
       <p class="modal-desc">เลือกช่วงวันที่ต้องการส่งไป Google Sheet</p>
       <div class="export-options">
         <label class="export-option">
@@ -135,7 +135,7 @@
       <p id="exportStatus" class="export-status" aria-live="polite"></p>
       <div class="modal-actions">
         <button type="button" class="btn btn-outline" id="exportCancel">ยกเลิก</button>
-        <button type="button" class="btn btn-primary" id="exportConfirm">📤 ส่งข้อมูล</button>
+        <button type="button" class="btn btn-primary" id="exportConfirm"> ส่งข้อมูล</button>
       </div>
     </div>
   </div>
