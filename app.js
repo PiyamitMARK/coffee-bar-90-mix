@@ -175,6 +175,12 @@ function renderCart() {
     cartItemsEl.appendChild(li);
   });
 
+  const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
+  const cartTitle = document.querySelector('.cart-header h2');
+  cartTitle.innerHTML = totalQty > 0
+    ? `รายการสั่งซื้อ <span class="cart-badge">${totalQty}</span>`
+    : 'รายการสั่งซื้อ';
+
   totalEl.textContent = formatMoney(cart.reduce((sum, i) => sum + i.price * i.qty, 0));
 }
 
