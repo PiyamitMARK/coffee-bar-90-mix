@@ -166,7 +166,7 @@ function renderOrders() {
         <div class="order-card-header">
           <div class="order-card-header-row">
             <h3 class="order-card-title">ออเดอร์ #${order.orderNumber}</h3>
-            <span class="order-status-badge ${isPending ? 'pending' : 'paid'}">${isPending ? 'รอจ่าย' : 'จ่ายแล้ว'}</span>
+            <span class="status-badge ${isPending ? 'pending' : 'paid'}">${isPending ? '⏳ รอจ่าย' : '✅ จ่ายแล้ว'}</span>
           </div>
           <div class="order-card-header-row">
             <span class="order-card-date">${formatDate(order.date)}</span>
@@ -180,12 +180,13 @@ function renderOrders() {
           <ul class="order-items">
             ${(order.items || []).map((i) => `
               <li class="order-item">
-                <span>${i.name}${i.temp ? `<br><small>${i.temp}, ${i.sweet}</small>` : ''} × ${i.qty}</span>
+                <span>${i.name}${i.temp ? `<br><small>${i.temp} · ${i.sweet}</small>` : ''} × ${i.qty}</span>
                 <span>${formatMoney(i.price * i.qty)}</span>
               </li>`).join('')}
           </ul>
-          <div class="order-totals">
-            <div class="row total"><span>รวมทั้งหมด</span><span>${formatMoney(order.total)}</span></div>
+          <div class="order-total-row">
+            <span>รวมทั้งหมด</span>
+            <span>${formatMoney(order.total)}</span>
           </div>
         </div>
       </article>`;
@@ -227,12 +228,15 @@ function renderHistory() {
       <section class="history-day">
         <div class="history-day-header">
           <span class="history-day-date">${formatDateOnly(day.date)}</span>
-          <span class="history-day-total">${formatMoney(day.total)} (${day.orders.length} ออเดอร์)</span>
+          <div class="history-day-summary">
+            <span class="history-day-count">${day.orders.length} ออเดอร์</span>
+            <span class="history-day-total">${formatMoney(day.total)}</span>
+          </div>
         </div>
         <div class="history-day-body">
-          <ul class="history-day-orders">
+          <ul class="history-orders">
             ${day.orders.map((o) =>
-              `<li><span>ออเดอร์ #${o.orderNumber} — ${formatDate(o.date)}</span><span>${formatMoney(o.total)}</span></li>`
+              `<li class="history-order-row"><span>ออเดอร์ #${o.orderNumber} · ${formatDate(o.date)}</span><span>${formatMoney(o.total)}</span></li>`
             ).join('')}
           </ul>
         </div>
@@ -242,7 +246,7 @@ function renderHistory() {
 
 // ==================== Tabs ====================
 function switchTab(tabId) {
-  adminTabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === tabId));
+  document.querySelectorAll('.tab-btn').forEach((t) => t.classList.toggle('active', t.dataset.tab === tabId));
   tabRecent.classList.toggle('hidden', tabId !== 'recent');
   tabHistory.classList.toggle('hidden', tabId !== 'history');
 }
@@ -282,7 +286,7 @@ logoutBtn.addEventListener('click', () => {
   loginError.textContent = '';
 });
 
-adminTabs.forEach((tab) => {
+document.querySelectorAll('.tab-btn').forEach((tab) => {
   tab.addEventListener('click', () => switchTab(tab.dataset.tab));
 });
 
