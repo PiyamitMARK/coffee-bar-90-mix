@@ -7,21 +7,52 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="app">
+
+    <!-- Header -->
     <header class="header">
-      <h1 class="logo">ร้านชากาแฟ</h1>
-      <div class="header-meta">
-        <span class="date" id="currentDate"></span>
-        <span class="order-num">ออเดอร์ #<span id="orderNumber">1001</span></span>
-        <a href="admin.html" class="admin-link" title="แอดมิน">แอดมิน</a>
+      <div class="header-left">
+        <h1 class="logo">☕ ร้านชากาแฟ</h1>
+      </div>
+      <div class="header-right">
+        <div class="header-info">
+          <span id="currentDate" class="date-text"></span>
+          <span class="order-chip">ออเดอร์ #<span id="orderNumber">1001</span></span>
+        </div>
+        <a href="admin.html" class="admin-btn" title="แอดมิน">⚙️</a>
       </div>
     </header>
 
     <main class="main">
+
+      <!-- Left: Products -->
       <section class="products-section">
+
+        <!-- Options bar -->
+        <div class="options-bar">
+          <div class="options-group">
+            <span class="options-label">ประเภท</span>
+            <div class="pill-group">
+              <button class="pill-btn temp-btn active" data-temp="เย็น">🧊 เย็น</button>
+              <button class="pill-btn temp-btn" data-temp="ร้อน">🔥 ร้อน</button>
+              <button class="pill-btn temp-btn" data-temp="ปั่น">🌀 ปั่น</button>
+            </div>
+          </div>
+          <div class="options-group">
+            <span class="options-label">หวาน</span>
+            <div class="pill-group">
+              <button class="pill-btn sweet-btn" data-sweet="ไม่หวาน">ไม่หวาน</button>
+              <button class="pill-btn sweet-btn" data-sweet="หวานน้อย">น้อย</button>
+              <button class="pill-btn sweet-btn active" data-sweet="หวานปกติ">ปกติ</button>
+              <button class="pill-btn sweet-btn" data-sweet="หวานมาก">มาก</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category tabs -->
         <nav class="categories">
           <button class="category-btn active" data-category="coffee">กาแฟ</button>
           <button class="category-btn" data-category="namwhan">น้ำหวาน</button>
@@ -30,86 +61,79 @@
           <button class="category-btn" data-category="soda">โซดา</button>
         </nav>
 
-        <div class="options-bar">
-          <div class="options-group">
-            <div class="options-label">ประเภท:</div>
-            <button class="option-btn temp-btn active" data-temp="เย็น">เย็น</button>
-            <button class="option-btn temp-btn" data-temp="ร้อน">ร้อน</button>
-            <button class="option-btn temp-btn" data-temp="ปั่น">ปั่น</button>
-          </div>
-          <div class="options-group">
-            <div class="options-label">หวาน:</div>
-            <button class="option-btn sweet-btn" data-sweet="ไม่หวาน">ไม่หวาน</button>
-            <button class="option-btn sweet-btn" data-sweet="หวานน้อย">หวานน้อย</button>
-            <button class="option-btn sweet-btn active" data-sweet="หวานปกติ">หวานปกติ</button>
-            <button class="option-btn sweet-btn" data-sweet="หวานมาก">หวานมาก</button>
-          </div>
-        </div>
-
+        <!-- Products grid -->
         <div class="products-grid" id="productsGrid"></div>
       </section>
 
+      <!-- Right: Cart -->
       <aside class="cart-section">
         <div class="cart-header">
-          <h2>รายการสั่งซื้อ</h2>
-          <button type="button" class="btn-clear" id="clearCart" title="ล้างรายการ">ล้าง</button>
+          <div class="cart-title-row">
+            <h2 class="cart-title">รายการสั่งซื้อ <span class="cart-badge" id="cartBadge" style="display:none">0</span></h2>
+          </div>
         </div>
 
         <ul class="cart-items" id="cartItems">
-          <li class="cart-empty" id="cartEmpty">ยังไม่มีรายการ</li>
+          <li class="cart-empty" id="cartEmpty">
+            <span class="cart-empty-icon">🛒</span>
+            <span>ยังไม่มีรายการ</span>
+          </li>
         </ul>
 
         <div class="cart-footer">
           <div class="totals">
-            <div class="row total">
+            <div class="total-row">
               <span>รวมทั้งหมด</span>
-              <span id="total">฿0.00</span>
+              <span class="total-amount" id="total">฿0.00</span>
             </div>
           </div>
           <div class="cart-actions">
-            <button type="button" class="btn btn-secondary" id="holdOrder">ถือรายการ</button>
-            <button type="button" class="btn btn-primary" id="completeOrder">สั่งซื้อ</button>
+            <button type="button" class="btn btn-ghost" id="clearCart">🗑 ล้าง</button>
+            <button type="button" class="btn btn-primary" id="completeOrder">✓ สั่งซื้อ</button>
           </div>
         </div>
       </aside>
     </main>
 
-    <div class="modal confirm-modal" id="confirmOrderModal" aria-hidden="true">
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirmOrderModal" aria-hidden="true">
       <div class="modal-content confirm-content">
-        <h3 class="confirm-title">ยืนยันสั่งซื้อ</h3>
-        <p class="confirm-message">ยืนยันสั่งซื้อรายการนี้?</p>
+        <h3 class="modal-title">ยืนยันสั่งซื้อ</h3>
         <div class="confirm-order-list" id="confirmOrderList"></div>
         <div class="confirm-total" id="confirmTotal"></div>
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" id="confirmOrderCancel">ยกเลิก</button>
-          <button type="button" class="btn btn-primary" id="confirmOrderOk">ยืนยัน</button>
+          <button type="button" class="btn btn-ghost" id="confirmOrderCancel">ยกเลิก</button>
+          <button type="button" class="btn btn-primary" id="confirmOrderOk">✓ ยืนยัน</button>
         </div>
       </div>
     </div>
 
+    <!-- Receipt Modal -->
     <div class="modal" id="receiptModal" aria-hidden="true">
-      <div class="modal-content">
+      <div class="modal-content receipt-modal-content">
         <div class="receipt" id="receiptContent">
-          <h3>ขอบคุณที่ใช้บริการ</h3>
-          <p class="receipt-order">ออเดอร์ #<span id="receiptOrderNum"></span></p>
-          <p class="receipt-date" id="receiptDate"></p>
-          <hr>
-          <div class="receipt-items" id="receiptItems"></div>
-          <hr>
-          <div class="receipt-totals">
-            <div class="row total"><span>รวมทั้งหมด</span><span id="receiptTotal"></span></div>
+          <div class="receipt-header">
+            <p class="receipt-shop">☕ ร้านชากาแฟ</p>
+            <p class="receipt-order">ออเดอร์ #<span id="receiptOrderNum"></span></p>
+            <p class="receipt-date" id="receiptDate"></p>
           </div>
-          <p class="receipt-footer">ขอให้อร่อยนะครับ/ค่ะ</p>
+          <div class="receipt-divider">--------------------------------</div>
+          <div class="receipt-items" id="receiptItems"></div>
+          <div class="receipt-divider">--------------------------------</div>
+          <div class="receipt-total-row">
+            <span>รวมทั้งหมด</span>
+            <span id="receiptTotal"></span>
+          </div>
+          <p class="receipt-footer">ขอบคุณที่ใช้บริการ 🙏</p>
         </div>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" id="printReceipt">พิมพ์</button>
+        <div class="modal-actions no-print">
+          <button type="button" class="btn btn-ghost" id="printReceipt">🖨 พิมพ์</button>
           <button type="button" class="btn btn-primary" id="newOrder">ออเดอร์ใหม่</button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- เปลี่ยนเป็น type="module" สำหรับ Firebase -->
+  </div>
   <script type="module" src="app.js"></script>
 </body>
 </html>
