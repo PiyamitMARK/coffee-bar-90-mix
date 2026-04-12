@@ -138,6 +138,7 @@ function renderProducts() {
 function addToCart({ id, name, price, image }) {
   cart.push({ id, name, price: parseFloat(price), qty: 1, image, temp: selectedTemp, sweet: selectedSweet });
   renderCart();
+  openCartOnMobile();
 }
 
 function removeFromCart(index) {
@@ -305,6 +306,29 @@ document.querySelectorAll(".sweet-btn").forEach(btn => {
     if (cart.length > 0) { cart[cart.length - 1].sweet = selectedSweet; renderCart(); }
   });
 });
+
+// ==================== Mobile Cart Toggle ====================
+const cartSection = document.querySelector('.cart-section');
+const cartHeader = document.querySelector('.cart-header');
+
+function isMobile() {
+  return window.innerWidth <= 900;
+}
+
+if (cartHeader) {
+  cartHeader.addEventListener('click', () => {
+    if (isMobile()) {
+      cartSection.classList.toggle('open');
+    }
+  });
+}
+
+// เปิด cart อัตโนมัติเมื่อเพิ่มสินค้า (บน mobile)
+function openCartOnMobile() {
+  if (isMobile() && cartSection) {
+    cartSection.classList.add('open');
+  }
+}
 
 // ==================== Init ====================
 setDate();
