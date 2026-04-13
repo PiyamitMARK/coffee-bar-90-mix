@@ -596,7 +596,6 @@ body {
   transition: opacity 0.3s ease, visibility 0.3s ease;
   pointer-events: none;
 }
-
 .cart-backdrop.active {
   opacity: 1;
   visibility: visible;
@@ -634,6 +633,20 @@ body {
     background: var(--cream-dark);
     border-radius: var(--radius-pill);
     margin: 0 auto 10px;
+    transition: background 0.2s, width 0.2s;
+  }
+
+  /* แสดง cursor grab บน handle bar */
+  .cart-header {
+    cursor: grab;
+    touch-action: none;
+  }
+  .cart-header:active {
+    cursor: grabbing;
+  }
+  .cart-header:active::before {
+    background: var(--brown-light);
+    width: 48px;
   }
 
   .cart-items { overflow-y: auto; -webkit-overflow-scrolling: touch; }
