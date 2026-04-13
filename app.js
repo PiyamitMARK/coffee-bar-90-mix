@@ -136,6 +136,7 @@ function renderProducts() {
 function addToCart({ id, name, price, image }) {
   cart.push({ id, name, price: parseFloat(price), qty: 1, image, temp: selectedTemp, sweet: selectedSweet });
   renderCart();
+  openCartOnMobile();
 }
 
 function removeFromCart(index) {
@@ -313,30 +314,46 @@ document.querySelectorAll(".sweet-btn").forEach(btn => {
 const cartSection = document.querySelector('.cart-section');
 const cartHeader = document.querySelector('.cart-header');
 
+// สร้าง backdrop สำหรับปิด cart เมื่อกดนอก
+const cartBackdrop = document.createElement('div');
+cartBackdrop.className = 'cart-backdrop';
+document.body.appendChild(cartBackdrop);
+
 function isMobile() {
   return window.innerWidth <= 900;
 }
 
-if (cartHeader) {
-  cartHeader.addEventListener('click', () => {
-    if (isMobile()) {
-      cartSection.classList.toggle('open');
-    }
-  });
-}
-
-// เปิด cart อัตโนมัติเมื่อเพิ่มสินค้า (บน mobile)
 function openCartOnMobile() {
   if (isMobile() && cartSection) {
     cartSection.classList.add('open');
+    cartBackdrop.classList.add('active');
   }
 }
 
 function closeCartOnMobile() {
   if (isMobile() && cartSection) {
     cartSection.classList.remove('open');
+    cartBackdrop.classList.remove('active');
   }
 }
+
+// กด header เพื่อ toggle
+if (cartHeader) {
+  cartHeader.addEventListener('click', () => {
+    if (isMobile()) {
+      if (cartSection.classList.contains('open')) {
+        closeCartOnMobile();
+      } else {
+        openCartOnMobile();
+      }
+    }
+  });
+}
+
+// กด backdrop (นอก cart) = ปิด cart
+cartBackdrop.addEventListener('click', () => {
+  closeCartOnMobile();
+});
 
 // ==================== Init ====================
 setDate();
