@@ -22,7 +22,7 @@ const db = getDatabase(firebaseApp);
 
 // ==================== Config ====================
 const ADMIN_USER = 'Mixzaza';
-const ADMIN_PASS = '121212';
+const ADMIN_PASS = '545454';
 const AUTH_KEY = 'tea-coffee-admin-auth';
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwn1wGVz1ixvjpfdkDnKbCbsQEcM6cld2lw2iU-UEIWKLFCUpztnFRNOS1uSWPIXkSgbw/exec';
 
