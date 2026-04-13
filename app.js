@@ -136,7 +136,6 @@ function renderProducts() {
 function addToCart({ id, name, price, image }) {
   cart.push({ id, name, price: parseFloat(price), qty: 1, image, temp: selectedTemp, sweet: selectedSweet });
   renderCart();
-  openCartOnMobile();
 }
 
 function removeFromCart(index) {
