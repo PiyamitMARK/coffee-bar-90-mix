@@ -584,6 +584,25 @@ body {
   .no-print, .modal-actions { display: none !important; }
 }
 
+/* ================================================ CART BACKDROP (mobile) */
+.cart-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgba(30, 15, 5, 0.35);
+  backdrop-filter: blur(1px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+}
+
+.cart-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
 /* ================================================ MOBILE */
 @media (max-width: 900px) {
   .main { display: block; height: auto; overflow: visible; }
