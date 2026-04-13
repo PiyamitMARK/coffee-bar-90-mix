@@ -596,6 +596,46 @@ body {
   /* ไม่ transition — JS control ผ่าน rAF */
 }
 
+/* ================================================ DESKTOP: cart กลับมาเป็น sidebar */
+@media (min-width: 901px) {
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    overflow: hidden;
+    height: calc(100vh - 57px);
+  }
+ 
+  .cart-section {
+    position: static !important;
+    transform: none !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    border-top: none !important;
+    border-left: 1.5px solid var(--cream-dark);
+    box-shadow: -4px 0 20px rgba(61,43,31,0.06) !important;
+    will-change: auto !important;
+  }
+ 
+  .cart-header {
+    cursor: default !important;
+    touch-action: auto !important;
+    user-select: auto !important;
+  }
+ 
+  .cart-header::before {
+    display: none !important;
+  }
+ 
+  .cart-backdrop {
+    display: none !important;
+  }
+ 
+  .products-section {
+    padding: 1.25rem 1.5rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+}
+
 /* ================================================ MOBILE */
 @media (max-width: 900px) {
   .main { display: block; height: auto; overflow: visible; }
