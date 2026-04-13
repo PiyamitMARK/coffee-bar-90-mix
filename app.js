@@ -310,7 +310,7 @@ document.querySelectorAll(".sweet-btn").forEach(btn => {
   });
 });
 
-// ==================== Mobile Cart Toggle + Drag ====================
+// ==================== Mobile Cart Toggle + Smooth Drag ====================
 const cartSection = document.querySelector('.cart-section');
 const cartHeader = document.querySelector('.cart-header');
 
@@ -320,101 +320,144 @@ document.body.appendChild(cartBackdrop);
 
 function isMobile() { return window.innerWidth <= 900; }
 
+// cart เปิดอยู่ที่ translateY(0), ปิดอยู่ที่ translateY(calc(100% - 58px))
+// ใช้ px จริงเพื่อ drag ได้ลื่น
+let cartH = 0;          // ความสูง cart (px)
+let closedOffset = 0;   // offset ตอนปิด (px)
+let currentOffset = 0;  // offset ปัจจุบัน
+let isOpen = false;
+
+function getCartMetrics() {
+  cartH = cartSection.offsetHeight;
+  closedOffset = cartH - 58;
+}
+
+function setOffset(offset, animate = false) {
+  currentOffset = Math.max(0, Math.min(offset, closedOffset));
+  cartSection.style.transition = animate ? 'transform 0.32s cubic-bezier(0.34,1.1,0.64,1)' : 'none';
+  cartSection.style.transform = `translateY(${currentOffset}px)`;
+
+  const progress = 1 - currentOffset / closedOffset;
+  cartBackdrop.style.opacity = Math.max(0, Math.min(progress * 0.5, 0.5));
+  cartBackdrop.style.visibility = currentOffset < closedOffset ? 'visible' : 'hidden';
+  cartBackdrop.style.pointerEvents = currentOffset < closedOffset ? 'auto' : 'none';
+}
+
+function openCart(animate = true) {
+  isOpen = true;
+  setOffset(0, animate);
+  cartSection.classList.add('open');
+}
+
+function closeCart(animate = true) {
+  isOpen = false;
+  getCartMetrics();
+  setOffset(closedOffset, animate);
+  cartSection.classList.remove('open');
+}
+
 function openCartOnMobile() {
-  if (isMobile() && cartSection) {
-    cartSection.classList.add('open');
-    cartBackdrop.classList.add('active');
-  }
+  if (isMobile()) { getCartMetrics(); openCart(); }
 }
 
 function closeCartOnMobile() {
-  if (isMobile() && cartSection) {
-    cartSection.classList.remove('open');
-    cartBackdrop.classList.remove('active');
-    // reset height กลับ default
-    cartSection.style.height = '';
-  }
+  if (isMobile()) closeCart();
 }
 
-cartBackdrop.addEventListener('click', closeCartOnMobile);
+cartBackdrop.addEventListener('click', () => closeCart());
 
-// ==================== Drag Handle ====================
+// ==================== Drag ====================
 let dragStartY = 0;
-let dragStartHeight = 0;
+let dragStartOffset = 0;
 let isDragging = false;
+let rafId = null;
+let latestY = 0;
 
-const MIN_HEIGHT = 120; // px ต่ำสุด
-const MAX_HEIGHT_VH = 92; // % ของ viewport สูงสุด
-
-function onDragStart(e) {
+function onPointerStart(clientY) {
   if (!isMobile()) return;
+  getCartMetrics();
   isDragging = true;
-  dragStartY = e.touches ? e.touches[0].clientY : e.clientY;
-  dragStartHeight = cartSection.getBoundingClientRect().height;
-
-  // หยุด transition ระหว่าง drag เพื่อให้ลื่น
+  dragStartY = clientY;
+  dragStartOffset = currentOffset;
   cartSection.style.transition = 'none';
-  document.body.style.userSelect = 'none';
+  document.body.style.overflow = 'hidden';
 }
 
-function onDragMove(e) {
+function onPointerMove(clientY) {
   if (!isDragging) return;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  const delta = dragStartY - clientY; // ลากขึ้น = บวก, ลงล่าง = ลบ
-  const newHeight = Math.min(
-    Math.max(dragStartHeight + delta, MIN_HEIGHT),
-    window.innerHeight * (MAX_HEIGHT_VH / 100)
-  );
-  cartSection.style.height = newHeight + 'px';
-  // เปิด cart ถ้าลากขึ้นพอ
-  if (newHeight > 150) {
-    cartSection.classList.add('open');
-    cartBackdrop.classList.add('active');
+  latestY = clientY;
+  if (!rafId) {
+    rafId = requestAnimationFrame(() => {
+      const delta = latestY - dragStartY;
+      const newOffset = Math.max(0, Math.min(dragStartOffset + delta, closedOffset));
+      currentOffset = newOffset;
+      cartSection.style.transform = `translateY(${newOffset}px)`;
+      const progress = 1 - newOffset / closedOffset;
+      cartBackdrop.style.opacity = Math.max(0, Math.min(progress * 0.5, 0.5));
+      cartBackdrop.style.visibility = newOffset < closedOffset ? 'visible' : 'hidden';
+      cartBackdrop.style.pointerEvents = newOffset < closedOffset ? 'auto' : 'none';
+      rafId = null;
+    });
   }
 }
 
-function onDragEnd() {
+function onPointerEnd(clientY) {
   if (!isDragging) return;
   isDragging = false;
-  document.body.style.userSelect = '';
+  document.body.style.overflow = '';
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
 
-  // คืน transition
-  cartSection.style.transition = '';
+  const delta = clientY - dragStartY;
+  const velocity = delta; // positive = ลงล่าง
 
-  const currentHeight = cartSection.getBoundingClientRect().height;
-  // ถ้าลากลงต่ำกว่า 160px = ปิด cart
-  if (currentHeight < 160) {
-    closeCartOnMobile();
+  // snap: ถ้าลากลง > 80px หรือ swipe ลงเร็ว → ปิด
+  if (velocity > 80 || currentOffset > closedOffset * 0.5) {
+    closeCart(true);
+  } else {
+    openCart(true);
   }
+  cartSection.style.pointerEvents = '';
 }
 
-if (cartHeader) {
-  // Touch (mobile)
-  cartHeader.addEventListener('touchstart', (e) => {
-    onDragStart(e);
-  }, { passive: true });
+// Touch events
+cartHeader.addEventListener('touchstart', (e) => {
+  onPointerStart(e.touches[0].clientY);
+}, { passive: true });
 
-  // tap (ไม่ได้ drag) = toggle
-  cartHeader.addEventListener('click', () => {
-    if (isDragging) return;
-    if (isMobile()) {
-      if (cartSection.classList.contains('open')) {
-        closeCartOnMobile();
-      } else {
-        openCartOnMobile();
-      }
-    }
-  });
-}
+document.addEventListener('touchmove', (e) => {
+  if (isDragging) onPointerMove(e.touches[0].clientY);
+}, { passive: true });
 
-document.addEventListener('touchmove', onDragMove, { passive: true });
-document.addEventListener('touchend', onDragEnd);
-// รองรับ mouse drag ด้วย (desktop preview)
-if (cartHeader) {
-  cartHeader.addEventListener('mousedown', onDragStart);
-}
-document.addEventListener('mousemove', onDragMove);
-document.addEventListener('mouseup', onDragEnd);
+document.addEventListener('touchend', (e) => {
+  onPointerEnd(e.changedTouches[0].clientY);
+});
+
+// Mouse events (สำหรับ desktop preview)
+cartHeader.addEventListener('mousedown', (e) => {
+  onPointerStart(e.clientY);
+  e.preventDefault();
+});
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) onPointerMove(e.clientY);
+});
+document.addEventListener('mouseup', (e) => {
+  if (isDragging) onPointerEnd(e.clientY);
+});
+
+// Tap toggle (ถ้าไม่ได้ drag)
+cartHeader.addEventListener('click', () => {
+  if (!isMobile() || isDragging) return;
+  const didDrag = Math.abs(currentOffset - dragStartOffset) > 5;
+  if (didDrag) return;
+  if (isOpen) closeCart(); else { getCartMetrics(); openCart(); }
+});
+
+// Init offset
+window.addEventListener('load', () => { getCartMetrics(); setOffset(closedOffset); });
+window.addEventListener('resize', () => {
+  getCartMetrics();
+  setOffset(isOpen ? 0 : closedOffset);
+});
 
 // ==================== Init ====================
 setDate();
