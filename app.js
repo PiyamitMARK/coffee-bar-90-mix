@@ -310,18 +310,15 @@ document.querySelectorAll(".sweet-btn").forEach(btn => {
   });
 });
 
-// ==================== Mobile Cart Toggle ====================
+// ==================== Mobile Cart Toggle + Drag ====================
 const cartSection = document.querySelector('.cart-section');
 const cartHeader = document.querySelector('.cart-header');
 
-// สร้าง backdrop สำหรับปิด cart เมื่อกดนอก
 const cartBackdrop = document.createElement('div');
 cartBackdrop.className = 'cart-backdrop';
 document.body.appendChild(cartBackdrop);
 
-function isMobile() {
-  return window.innerWidth <= 900;
-}
+function isMobile() { return window.innerWidth <= 900; }
 
 function openCartOnMobile() {
   if (isMobile() && cartSection) {
@@ -334,12 +331,72 @@ function closeCartOnMobile() {
   if (isMobile() && cartSection) {
     cartSection.classList.remove('open');
     cartBackdrop.classList.remove('active');
+    // reset height กลับ default
+    cartSection.style.height = '';
   }
 }
 
-// กด header เพื่อ toggle
+cartBackdrop.addEventListener('click', closeCartOnMobile);
+
+// ==================== Drag Handle ====================
+let dragStartY = 0;
+let dragStartHeight = 0;
+let isDragging = false;
+
+const MIN_HEIGHT = 120; // px ต่ำสุด
+const MAX_HEIGHT_VH = 92; // % ของ viewport สูงสุด
+
+function onDragStart(e) {
+  if (!isMobile()) return;
+  isDragging = true;
+  dragStartY = e.touches ? e.touches[0].clientY : e.clientY;
+  dragStartHeight = cartSection.getBoundingClientRect().height;
+
+  // หยุด transition ระหว่าง drag เพื่อให้ลื่น
+  cartSection.style.transition = 'none';
+  document.body.style.userSelect = 'none';
+}
+
+function onDragMove(e) {
+  if (!isDragging) return;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const delta = dragStartY - clientY; // ลากขึ้น = บวก, ลงล่าง = ลบ
+  const newHeight = Math.min(
+    Math.max(dragStartHeight + delta, MIN_HEIGHT),
+    window.innerHeight * (MAX_HEIGHT_VH / 100)
+  );
+  cartSection.style.height = newHeight + 'px';
+  // เปิด cart ถ้าลากขึ้นพอ
+  if (newHeight > 150) {
+    cartSection.classList.add('open');
+    cartBackdrop.classList.add('active');
+  }
+}
+
+function onDragEnd() {
+  if (!isDragging) return;
+  isDragging = false;
+  document.body.style.userSelect = '';
+
+  // คืน transition
+  cartSection.style.transition = '';
+
+  const currentHeight = cartSection.getBoundingClientRect().height;
+  // ถ้าลากลงต่ำกว่า 160px = ปิด cart
+  if (currentHeight < 160) {
+    closeCartOnMobile();
+  }
+}
+
 if (cartHeader) {
+  // Touch (mobile)
+  cartHeader.addEventListener('touchstart', (e) => {
+    onDragStart(e);
+  }, { passive: true });
+
+  // tap (ไม่ได้ drag) = toggle
   cartHeader.addEventListener('click', () => {
+    if (isDragging) return;
     if (isMobile()) {
       if (cartSection.classList.contains('open')) {
         closeCartOnMobile();
@@ -350,10 +407,14 @@ if (cartHeader) {
   });
 }
 
-// กด backdrop (นอก cart) = ปิด cart
-cartBackdrop.addEventListener('click', () => {
-  closeCartOnMobile();
-});
+document.addEventListener('touchmove', onDragMove, { passive: true });
+document.addEventListener('touchend', onDragEnd);
+// รองรับ mouse drag ด้วย (desktop preview)
+if (cartHeader) {
+  cartHeader.addEventListener('mousedown', onDragStart);
+}
+document.addEventListener('mousemove', onDragMove);
+document.addEventListener('mouseup', onDragEnd);
 
 // ==================== Init ====================
 setDate();
