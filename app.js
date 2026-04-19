@@ -53,7 +53,7 @@ const products = {
     { id: 'soi1', name: 'ข้าวซอยไก่', price: 65, image: IMG(111) },
     { id: 'soi3', name: 'น้ำเงี้ยว', price: 60, image: IMG(555) },
     { id: 'soi5', name: 'เพิ่มไก่', price: 20, image: IMG(798798) },
-    { id: 'soi4', name: 'แคบหมู', price: 13, image: IMG(98789) },
+    { id: 'soi4', name: 'แคบหมู', price: 15, image: IMG(98789) },
     { id: 'soi10', name: 'ไข่', price: 10, image: IMG(1090) },
   ],
   kaomutod: [
