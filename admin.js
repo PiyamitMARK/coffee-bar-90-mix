@@ -172,6 +172,7 @@ function renderOrders() {
             <span class="order-card-date">${formatDate(order.date)}</span>
             <div class="order-actions">
               ${isPending ? `<button type="button" class="btn-paid" data-key="${order.firebaseKey}">จ่ายแล้ว</button>` : ''}
+              <button type="button" class="btn-add-item" data-key="${order.firebaseKey}">+ เมนู</button>
               <button type="button" class="btn-delete" data-key="${order.firebaseKey}" data-num="${order.orderNumber}">ลบ</button>
             </div>
           </div>
@@ -194,6 +195,13 @@ function renderOrders() {
 
   ordersList.querySelectorAll('.btn-paid').forEach((btn) => {
     btn.addEventListener('click', () => markOrderAsPaid(btn.dataset.key));
+  });
+
+  ordersList.querySelectorAll('.btn-add-item').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const order = allOrders.find(o => o.firebaseKey === btn.dataset.key);
+      if (order) openAddItemModal(btn.dataset.key, order);
+    });
   });
 
   ordersList.querySelectorAll('.btn-delete').forEach((btn) => {
@@ -427,6 +435,144 @@ exportConfirm.addEventListener('click', async () => {
     exportConfirm.textContent = '📤 ส่งข้อมูล';
   }
 });
+
+// ==================== Products (for admin add-item) ====================
+const ALL_PRODUCTS = [
+  { id: 'espresso',          name: 'เอสเปรสโซ่',            price: 55, category: 'coffee' },
+  { id: 'cappuccino',        name: 'คาปูชิโน่',              price: 55, category: 'coffee' },
+  { id: 'latte',             name: 'ลาเต้',                  price: 55, category: 'coffee' },
+  { id: 'americano',         name: 'อเมริกาโน่',             price: 45, category: 'coffee' },
+  { id: 'coconut-americano', name: 'อเมริกาโน่มะพร้าว',     price: 60, category: 'coffee' },
+  { id: 'honey-americano',   name: 'อเมริกาโน่น้ำผึ้ง',     price: 55, category: 'coffee' },
+  { id: 'mocha',             name: 'มอคค่า',                 price: 55, category: 'coffee' },
+  { id: 'orange-americano',  name: 'อเมริกาโน่ส้ม',         price: 60, category: 'coffee' },
+  { id: 'pure-matcha',       name: 'เพียวมัทฉะ',            price: 55, category: 'coffee' },
+  { id: 'matcha-latte',      name: 'มัทฉะลาเต้',            price: 60, category: 'coffee' },
+  { id: 'coconut-matcha',    name: 'มัทฉะมะพร้าว',          price: 60, category: 'coffee' },
+  { id: 'water',             name: 'น้ำเปล่า',               price: 10, category: 'drink' },
+  { id: 'pepsi',             name: 'เป็ปซี่',                price: 15, category: 'drink' },
+  { id: 'fanta',             name: 'น้ำแดงแฟนต้า',          price: 15, category: 'drink' },
+  { id: 'sprite',            name: 'สไปร์ท',                 price: 15, category: 'drink' },
+  { id: 'coconut',           name: 'มะพร้าวปั่น',            price: 45, category: 'drink' },
+  { id: 'thai-tea',          name: 'ชาไทย',                  price: 40, category: 'drink' },
+  { id: 'green-tea',         name: 'ชาเขียว',                price: 40, category: 'drink' },
+  { id: 'black-tea',         name: 'ชาดำเย็น',               price: 40, category: 'drink' },
+  { id: 'lemon-tea',         name: 'ชามะนาว',                price: 40, category: 'drink' },
+  { id: 'pink-milk',         name: 'นมชมพู',                 price: 40, category: 'drink' },
+  { id: 'cocoa',             name: 'โกโก้',                  price: 40, category: 'drink' },
+  { id: 'red-lime-soda',     name: 'แดงมะนาวโซดา',          price: 35, category: 'drink' },
+  { id: 'blue-hawaii-soda',  name: 'บลูฮาวายมะนาวโซดา',    price: 35, category: 'drink' },
+  { id: 'honey-lime-soda',   name: 'น้ำผึ้งมะนาวโซดา',      price: 35, category: 'drink' },
+  { id: 'apple-soda',        name: 'แอปเปิ้ลโซดา',          price: 35, category: 'drink' },
+  { id: 'orange-soda',       name: 'ส้มโซดา',                price: 35, category: 'drink' },
+  { id: 'strawberry-soda',   name: 'สตรอเบอร์รี่โซดา',      price: 35, category: 'drink' },
+  { id: 'blueberry-soda',    name: 'บลูเบอร์รี่โซดา',       price: 35, category: 'drink' },
+  { id: 'strawberry-yogurt', name: 'สตรอเบอร์รี่โยเกิร์ต',  price: 55, category: 'drink' },
+  { id: 'orange-yogurt',     name: 'ส้มโยเกิร์ต',            price: 55, category: 'drink' },
+  { id: 'mango-yogurt',      name: 'มะม่วงโยเกิร์ต',         price: 55, category: 'drink' },
+  { id: 'pineapple-yogurt',  name: 'สับปะรดโยเกิร์ต',        price: 55, category: 'drink' },
+  { id: 'mix-berry-yogurt',  name: 'มิกซ์เบอร์รี่โยเกิร์ต', price: 55, category: 'drink' },
+  { id: 'soi1',              name: 'ข้าวซอยไก่',             price: 65, category: 'food' },
+  { id: 'soi3',              name: 'น้ำเงี้ยว',              price: 60, category: 'food' },
+  { id: 'soi5',              name: 'เพิ่มไก่',               price: 20, category: 'food' },
+  { id: 'soi4',              name: 'แคบหมู',                 price: 15, category: 'food' },
+  { id: 'soi10',             name: 'ไข่',                    price: 10, category: 'food' },
+  { id: 'kao1',              name: 'ข้าวหมูทอด',             price: 50, category: 'food' },
+];
+
+const ADD_ITEM_CATEGORIES = [
+  { id: 'all',    label: '🍽 ทั้งหมด' },
+  { id: 'coffee', label: '☕ กาแฟ' },
+  { id: 'drink',  label: '🥤 น้ำ/โซดา' },
+  { id: 'food',   label: '🍚 อาหาร' },
+];
+let addItemActiveCategory = 'all';
+
+// ==================== Add Item Modal ====================
+let addItemTargetKey = null;
+let addItemTargetOrder = null;
+
+const addItemModal = document.getElementById('addItemModal');
+const addItemProductList = document.getElementById('addItemProductList');
+const addItemCancel = document.getElementById('addItemCancel');
+
+function openAddItemModal(firebaseKey, order) {
+  addItemTargetKey = firebaseKey;
+  addItemTargetOrder = JSON.parse(JSON.stringify(order));
+  addItemActiveCategory = 'all';
+  renderAddItemList();
+  addItemModal.setAttribute('aria-hidden', 'false');
+}
+
+function closeAddItemModal() {
+  addItemModal.setAttribute('aria-hidden', 'true');
+  addItemTargetKey = null;
+  addItemTargetOrder = null;
+  document.getElementById('addItemToastMsg').textContent = '';
+}
+
+function renderAddItemList() {
+  const currentItems = addItemTargetOrder.items || [];
+  const filtered = addItemActiveCategory === 'all'
+    ? ALL_PRODUCTS
+    : ALL_PRODUCTS.filter(p => p.category === addItemActiveCategory);
+
+  const tabsHtml = `<div class="add-item-cat-tabs">${
+    ADD_ITEM_CATEGORIES.map(cat =>
+      `<button type="button" class="add-item-cat-btn${addItemActiveCategory === cat.id ? ' active' : ''}" data-cat="${cat.id}">${cat.label}</button>`
+    ).join('')
+  }</div>`;
+
+  const productsHtml = `<div class="add-item-product-grid">${
+    filtered.map(p => {
+      const existing = currentItems.find(i => i.name === p.name);
+      const qty = existing ? existing.qty : 0;
+      return `<button type="button" class="add-item-product-btn" data-name="${p.name}" data-price="${p.price}">
+        <span class="add-item-product-name">${p.name}</span>
+        <span class="add-item-product-price">${formatMoney(p.price)}</span>
+        ${qty > 0 ? `<span class="add-item-qty-badge">${qty}</span>` : ''}
+      </button>`;
+    }).join('')
+  }</div>`;
+
+  addItemProductList.innerHTML = tabsHtml + productsHtml;
+
+  addItemProductList.querySelectorAll('.add-item-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      addItemActiveCategory = btn.dataset.cat;
+      renderAddItemList();
+    });
+  });
+
+  addItemProductList.querySelectorAll('.add-item-product-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const { name, price } = btn.dataset;
+      const items = addItemTargetOrder.items || [];
+      const existing = items.find(i => i.name === name);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        items.push({ name, price: parseFloat(price), qty: 1 });
+      }
+      addItemTargetOrder.items = items;
+      addItemTargetOrder.total = items.reduce((s, i) => s + i.price * i.qty, 0);
+
+      await update(ref(db, `orders/${addItemTargetKey}`), {
+        items: addItemTargetOrder.items,
+        total: addItemTargetOrder.total,
+      });
+
+      const toast = document.getElementById('addItemToastMsg');
+      toast.textContent = `✅ เพิ่ม "${name}" แล้ว`;
+      setTimeout(() => { if (toast) toast.textContent = ''; }, 2000);
+
+      renderAddItemList();
+    });
+  });
+}
+
+addItemCancel.addEventListener('click', closeAddItemModal);
+addItemModal.addEventListener('click', (e) => { if (e.target === addItemModal) closeAddItemModal(); });
 
 // ==================== Init ====================
 checkAuth();
