@@ -659,3 +659,139 @@ body {
 
   .login-card { padding: 1.75rem 1.25rem; }
 }
+
+/* ================================================ CART ITEM REMOVE (for app.js reference) */
+.cart-item-remove {
+  background: transparent;
+  border: none;
+  color: var(--brown-light);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition), background var(--transition);
+  flex-shrink: 0;
+  line-height: 1;
+}
+.cart-item-remove:hover {
+  color: var(--red);
+  background: #fff5f5;
+}
+
+/* ================================================ ADD ITEM MODAL */
+.add-item-product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.add-item-cat-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.add-item-cat-btn {
+  padding: 0.35rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid var(--cream-dark);
+  background: var(--white);
+  color: var(--brown-light);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.add-item-cat-btn:hover { border-color: var(--brown-light); color: var(--brown); }
+.add-item-cat-btn.active {
+  background: var(--brown);
+  color: var(--white);
+  border-color: var(--brown);
+}
+
+.add-item-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.add-item-product-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.65rem 0.5rem;
+  font-family: inherit;
+  border: 1.5px solid var(--cream-dark);
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: center;
+}
+.add-item-product-btn:hover {
+  border-color: var(--brown-light);
+  background: var(--cream);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.add-item-product-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--brown);
+  line-height: 1.3;
+}
+
+.add-item-product-price {
+  font-size: 0.78rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.add-item-qty-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--brown);
+  color: var(--white);
+  font-size: 0.7rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-item-toast {
+  font-size: 0.85rem;
+  color: var(--green);
+  font-weight: 600;
+  min-height: 1.2rem;
+  text-align: center;
+}
+
+/* Add item button inside order card */
+.btn-add-item {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 600;
+  background: transparent;
+  color: var(--brown-mid);
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-add-item:hover {
+  border-color: var(--brown-light);
+  background: var(--cream);
+}
