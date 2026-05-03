@@ -52,8 +52,9 @@ const products = {
   kaosoi: [
     { id: 'soi1', name: 'ข้าวซอยไก่', price: 65, image: IMG(111) },
     { id: 'soi2', name: 'กะเพรา', price: 50, image: IMG(10000) },
-    { id: 'soi2', name: 'ลาบหมู', price: 60, image: IMG(10001) },
+    { id: 'soi11', name: 'ลาบหมู', price: 60, image: IMG(10001) },
     { id: 'soi3', name: 'น้ำเงี้ยว', price: 60, image: IMG(555) },
+    { id: 'soi12', name: 'ไข่ดาว', price: 10, image: IMG(9999) },
     { id: 'soi5', name: 'เพิ่มไก่', price: 20, image: IMG(798798) },
     { id: 'soi4', name: 'แคบหมู', price: 15, image: IMG(98789) },
     { id: 'soi10', name: 'ไข่', price: 10, image: IMG(1090) },
